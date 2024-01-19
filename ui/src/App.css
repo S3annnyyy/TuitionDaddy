@@ -17,3 +17,12 @@
   border: 4px solid #fff;
   background-clip: padding-box
 }
+
+@layer components {
+  .navbar-underline-anim {
+    @apply absolute -bottom-2 -left-2 -right-2 h-1
+           origin-left scale-x-0 rounded-full bg-primary
+           transition-transform duration-300 ease-out 
+           group-hover:scale-x-100  
+  }
+}
