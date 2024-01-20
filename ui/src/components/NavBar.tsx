@@ -8,7 +8,7 @@ const navigation = [
   {name: "Microservice 3", ref: "/s3" , active: false},
 ]
 
-const NavLink = (props: { children: string, href: string }): JSX.Element => {
+const CustomNavLink = (props: { children: string, href: string }): JSX.Element => {
   const { children, href } = props;
   return (
     <div className="group relative h-fit w-fit">
@@ -47,7 +47,7 @@ const NavBar = () => {
             <div className="hidden lg:flex gap-8 ">             
               {navigation.map((item) => {
                 return (
-                  <NavLink key={item.name} href={item.ref}>{item.name}</NavLink>
+                  <CustomNavLink key={item.name} href={item.ref}>{item.name}</CustomNavLink>
                 )
               })}
             </div>
@@ -88,7 +88,7 @@ const NavBar = () => {
           <div className="flex flex-col gap-8 font-bold tracking-wider">
             {navigation.map((item) => {
                 return (
-                  <NavLink key={item.name} href={item.ref}>{item.name}</NavLink>
+                  <CustomNavLink key={item.name} href={item.ref}>{item.name}</CustomNavLink>
                 )
             })}
           </div>
