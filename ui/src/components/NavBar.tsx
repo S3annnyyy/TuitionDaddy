@@ -1,6 +1,8 @@
 import { useState } from "react";
-import {  PaperAirplaneIcon, MoonIcon, SunIcon, UserIcon, Bars3CenterLeftIcon } from "@heroicons/react/24/outline";
+import { PaperAirplaneIcon, MoonIcon, SunIcon, UserIcon, Bars3CenterLeftIcon } from "@heroicons/react/24/outline"
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import Modal from "./LoginModal";
 
 const navigation = [
   {name: "Home", ref: "/" , active: true},
@@ -32,6 +34,10 @@ const LightDarkToggleBtn = ():JSX.Element => {
 
 const NavBar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const close = () => setModalOpen(false);
+  const open = () => setModalOpen(true);
+  
   return ( 
     <nav>
       <div className="w-screen mx-auto border-b-2 border-b-grey-300">
@@ -60,9 +66,14 @@ const NavBar = () => {
               <LightDarkToggleBtn />
 
               <div>
-                <button className="align-middle rounded-full border-solid border-2 border-gray-800 py-2 px-4 hover:outline outline-offset-2 hover:outline-primary">
+                <motion.button 
+                  className="align-middle rounded-full border-solid border-2 border-gray-800 py-2 px-4 hover:outline outline-offset-2 hover:outline-primary"
+                  onClick={() => (modalOpen ? close() : open())}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
                   Sign Up<UserIcon className="h-5 w-5 inline"/>                    
-                </button>
+                </motion.button>
               </div>
               
             </div>
@@ -77,7 +88,13 @@ const NavBar = () => {
         </div>
       </div>
 
-
+      <AnimatePresence
+        initial={false}
+        mode='wait'
+        onExitComplete={() => null}
+      >
+        {modalOpen && <Modal handleClose={close} />}
+      </AnimatePresence>
       
       {/* mobile navigation */}
       <div

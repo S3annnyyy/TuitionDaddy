@@ -13,7 +13,7 @@ const config: Config = {
           purple:'#9757D7',
           pink: '#EF466F',
           green:'#45B36B',
-
+          backdrop: '#000000e1',
         },
         secondary:{
           DEFAULT:'#3772FF',
