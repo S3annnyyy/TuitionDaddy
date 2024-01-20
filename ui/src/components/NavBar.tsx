@@ -1,9 +1,10 @@
 import { useState } from "react";
 import {  PaperAirplaneIcon, MoonIcon, SunIcon, UserIcon, Bars3CenterLeftIcon } from "@heroicons/react/24/outline";
+import { Link } from 'react-router-dom'
 
 const navigation = [
   {name: "Home", ref: "/" , active: true},
-  {name: "Microservice 1", ref: "/s1" , active: false},
+  {name: "Microservice 1", ref: "/microservice1" , active: false},
   {name: "Microservice 2", ref: "/s2" , active: false},
   {name: "Microservice 3", ref: "/s3" , active: false},
 ]
@@ -12,10 +13,10 @@ const CustomNavLink = (props: { children: string, href: string }): JSX.Element =
   const { children, href } = props;
   return (
     <div className="group relative h-fit w-fit">
-      <a href={href} className="relative">
+      <Link to={href} className="relative">
         {children}
         <span className="navbar-underline-anim"/>
-      </a>   
+      </Link>   
     </div>  
   )
 }
@@ -38,10 +39,10 @@ const NavBar = () => {
           {/* Primary menu and logo */}
           <div className="flex items-center gap-16 my-5">              
             <div>
-              <a href="/" className="flex gap-1 font-bold text-gray-700 items-center ">
+              <Link to="/" className="flex gap-1 font-bold text-gray-700 items-center ">
                 <PaperAirplaneIcon className="h-6 w-6 text-primary" />
                 <span>Logo Here</span>
-              </a>
+              </Link>
             </div>
             
             <div className="hidden lg:flex gap-8 ">             
