@@ -39,3 +39,18 @@ export function slideInFromLeft(delay: number) {
       },
     },
   };
+
+  export const dropInFromTop = {
+    hidden: {y: "-100vh"},
+    visible: {
+      y: "0",
+      opacity: 1,
+      transition: {
+        duration: 0.1,
+        type: "spring",
+        daming: 25,
+        stiffness: 500
+      }
+    },
+    exit: {y: "100vh"},
+  }
