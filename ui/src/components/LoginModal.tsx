@@ -4,16 +4,16 @@ import { dropInFromTop } from '../utils/motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { handleSubmit } from '../utils/loginFunctions';
 
-interface backdropProps {
-    children: any;
-    onClick: any;
+interface BackdropProps {
+    children: React.ReactNode;
+    onClick: () => void;
 }
 
-interface modalProps {
-    handleClose: any;    
+interface ModalProps {
+    handleClose: () => void;    
 }
 
-const Backdrop = (props: backdropProps):JSX.Element => {    
+const Backdrop: React.FC<BackdropProps> = (props) => {    
     return (
         <motion.div 
             onClick={props.onClick}
@@ -26,7 +26,7 @@ const Backdrop = (props: backdropProps):JSX.Element => {
     )
 }
 
-const Modal = (props: modalProps):JSX.Element => {
+const Modal: React.FC<ModalProps> = (props: ModalProps) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
