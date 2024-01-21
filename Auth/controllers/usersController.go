@@ -116,3 +116,12 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+func Validate(c *gin.Context) {
+	user, _ := c.Get("user")
+	userEmail := user.(models.User).Email
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": userEmail + " user is logged in",
+	})
+}
