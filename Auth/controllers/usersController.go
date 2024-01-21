@@ -115,5 +115,4 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
-
 }
