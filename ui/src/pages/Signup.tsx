@@ -1,19 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion'
 import { slideInFromTop } from '../utils/motion';
 import { PaperAirplaneIcon, HomeIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom'
-
-type PasswordStrength =
-  | "Very Weak"
-  | "Weak"
-  | "Medium"
-  | "Strong"
-  | "Very Strong";
+import { handleSignUp } from '../utils/authFunctions';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
     const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');   
+    const [password, setPassword] = useState<string>('');
+    const navigate = useNavigate();
+    
+    const onFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const signUpResult = await handleSignUp(email, password);   
+        if (signUpResult) {               
+            navigate('/');
+        }
+    };
         
   return (
     <section className="bg-gray-50 dark:bg-gray-900 w-screen h-screen align-middle">
@@ -27,24 +31,24 @@ const Signup = () => {
                 <PaperAirplaneIcon className="w-8 h-8 mr-2 text-primary" />
                 <span>Logo Here</span>
             </Link>
-            <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                         Create account
                     </h1>
-                    <form className="space-y-4 md:space-y-6" action="#">
+                    <form className="space-y-4 md:space-y-6" onSubmit={onFormSubmit}>
                         <div>
                             <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                            <input type="email" name="email" id="email" className="login-form-component dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required />
+                            <input type="email" name="email" id="email" className="login-form-component dark:bg-gray-700" placeholder="name@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
                         </div>
                         <div>
                             <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                            <input type="password" name="password" id="password" placeholder="••••••••" className="login-form-component dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                            <input type="password" name="password" id="password" placeholder="••••••••" className="login-form-component dark:bg-gray-700" value={password} onChange={e => setPassword(e.target.value)} required/>
                         </div>                       
 
                         <div>
                             <label htmlFor="confirm-password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm password</label>
-                            <input type="confirm-password" name="confirm-password" id="confirm-password" placeholder="••••••••" className="login-form-component dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                            <input type="confirm-password" name="confirm-password" id="confirm-password" placeholder="••••••••" className="login-form-component dark:bg-gray-700" required />
                         </div>
                         <div className="flex items-start">
                             <div className="flex items-center h-5">
