@@ -11,7 +11,8 @@ interface BackdropProps {
 }
 
 interface ModalProps {
-    handleClose: () => void;    
+    handleClose: () => void;
+    signedIn: React.Dispatch<React.SetStateAction<boolean>>;    
 }
 
 const Backdrop: React.FC<BackdropProps> = (props) => {    
@@ -34,8 +35,9 @@ const Modal: React.FC<ModalProps> = (props: ModalProps) => {
     const onFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const loginResult = await handleLogin(email, password);   
-        if (loginResult) {
-            location.reload();
+        if (loginResult) {            
+            props.handleClose() // close modal
+            props.signedIn(true) // change sign up button to indicate signed in
         }
     };
   return (

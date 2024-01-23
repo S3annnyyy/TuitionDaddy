@@ -34,7 +34,8 @@ const LightDarkToggleBtn = ():JSX.Element => {
 
 const NavBar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);  
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isLoggedIn, setLoginStatus] = useState<boolean>(false);  
   const close = () => setModalOpen(false);
   const open = () => setModalOpen(true);
   
@@ -66,14 +67,15 @@ const NavBar = () => {
               <LightDarkToggleBtn />
 
               <div>
-                <motion.button 
+                {isLoggedIn ? (<p>Welcome!</p>) : (<motion.button 
                   className="align-middle rounded-full border-solid border-2 border-gray-800 py-2 px-4 hover:outline outline-offset-2 hover:outline-primary"
                   onClick={() => (modalOpen ? close() : open())}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   Sign Up<UserIcon className="h-5 w-5 inline"/>                    
-                </motion.button>
+                </motion.button>)
+                }
               </div>
               
             </div>
@@ -93,7 +95,7 @@ const NavBar = () => {
         mode='wait'
         onExitComplete={() => null}
       >
-        {modalOpen && <Modal handleClose={close} />}
+        {modalOpen && <Modal handleClose={close}  signedIn={setLoginStatus}/>}
       </AnimatePresence>
       
       {/* mobile navigation */}
