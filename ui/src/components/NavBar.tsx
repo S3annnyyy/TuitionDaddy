@@ -34,7 +34,7 @@ const LightDarkToggleBtn = ():JSX.Element => {
 
 const NavBar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);  
   const close = () => setModalOpen(false);
   const open = () => setModalOpen(true);
   

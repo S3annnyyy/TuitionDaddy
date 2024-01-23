@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion'
 import { dropInFromTop } from '../utils/motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { handleSubmit } from '../utils/loginFunctions';
+import { handleLogin } from '../utils/authFunctions';
+import { Link } from 'react-router-dom'
 
 interface BackdropProps {
     children: React.ReactNode;
@@ -28,13 +29,14 @@ const Backdrop: React.FC<BackdropProps> = (props) => {
 
 const Modal: React.FC<ModalProps> = (props: ModalProps) => {
     const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [password, setPassword] = useState<string>('');    
 
-    const onFormSubmit = (e: React.FormEvent) => {
+    const onFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const result = handleSubmit(email, password);
-        console.log(result)
-        // for future authentication & DB connection
+        const loginResult = await handleLogin(email, password);   
+        if (loginResult) {
+            location.reload();
+        }
     };
   return (
     <Backdrop onClick={props.handleClose}>
@@ -70,16 +72,9 @@ const Modal: React.FC<ModalProps> = (props: ModalProps) => {
                             </div>
                             <a href="#" className="text-sm font-medium text-primary-600 hover:underline">Forgot password?</a>
                         </div>
-                        <motion.button 
-                            type="submit" 
-                            className="login-form-button"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}                           
-                        >
-                            Sign in
-                        </motion.button>
+                        <motion.button type="submit" className="login-form-button" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>Sign in</motion.button>           
                         <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                            Don’t have an account yet? <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                            Don’t have an account yet? <Link to="/signup" onClick={props.handleClose} className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
                         </p>
                     </form>
                 </div>
