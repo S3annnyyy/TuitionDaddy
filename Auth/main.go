@@ -14,10 +14,27 @@ func init() {
 	initializers.SyncDatabase()
 }
 
+// CORS middleware
+func corsMiddleware(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(204)
+		return
+	}
+
+	c.Next()
+}
+
 func main() {
 	// compiledaemon --command="./Auth"
 	// go run .
 	r := gin.Default()
+
+	// Enable CORS middleware
+	r.Use(corsMiddleware)
 
 	r.POST("/signup", controllers.Signup)
 	r.POST("/login", controllers.Login)
