@@ -30,7 +30,7 @@ func corsMiddleware(c *gin.Context) {
 
 func main() {
 	// compiledaemon --command="./Auth"
-	// go run .
+	// go run main.go
 	r := gin.Default()
 
 	// Enable CORS middleware

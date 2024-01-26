@@ -3,6 +3,7 @@ package controllers
 import (
 	"TuitionDaddy/Auth/initializers"
 	"TuitionDaddy/Auth/models"
+	"encoding/json"
 	"net/http"
 	"os"
 	"time"
@@ -17,8 +18,13 @@ var EXPIRATION_DATE_1MTH = 3600 * 24 * 30
 func Signup(c *gin.Context) {
 	// Get the email/pass from req body
 	var body struct {
-		Email    string
-		Password string
+		Email          string
+		Password       string
+		Username       string
+		Organisation   string
+		Role           string
+		EducationLevel string
+		Transcripts    []string // Assuming an array of strings for transcripts
 	}
 
 	if c.Bind(&body) != nil {
@@ -39,13 +45,34 @@ func Signup(c *gin.Context) {
 		return
 	}
 
+	// Convert the Transcripts field to a JSON string
+	transcriptsJSON, err := json.Marshal(body.Transcripts)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to parse transcripts",
+		})
+
+		return
+	}
+
+	// Update the struct with the JSON string for Transcripts
+	body.Transcripts = []string{string(transcriptsJSON)}
+
 	// Create user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{
+		Email:          body.Email,
+		Password:       string(hash),
+		Username:       body.Username,
+		Organisation:   body.Organisation,
+		Role:           body.Role,
+		EducationLevel: body.EducationLevel,
+		Transcripts:    body.Transcripts,
+	}
 	result := initializers.DB.Create(&user)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create user",
+			"error": "Failed to create user due to: " + result.Error.Error(),
 		})
 
 		return
