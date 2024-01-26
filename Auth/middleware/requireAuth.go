@@ -1,3 +1,6 @@
+// THIS FILE ENFORCES AUTHENTICATION BY VALIDATING AND PARSING JWT TOKENS FROM REQUEST COOKIES
+// CHECKING EXPIRY AND USER VALIDITY, AND SETTING USER INFORMATION IN THE GIN CONTEXT
+
 package middleware
 
 import (
@@ -35,7 +38,7 @@ func RequireAuth(c *gin.Context) {
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		// Check exp
+		// Check expiry
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}

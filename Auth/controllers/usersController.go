@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var EXPIRATION_DATE = 3600 * 24 * 30
+var EXPIRATION_DATE_1MTH = 3600 * 24 * 30
 
 func Signup(c *gin.Context) {
 	// Get the email/pass from req body
@@ -113,7 +113,7 @@ func Login(c *gin.Context) {
 
 	// Send response back(cookie)
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE, "", "", false, true)
+	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE_1MTH, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
