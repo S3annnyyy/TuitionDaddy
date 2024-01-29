@@ -3,7 +3,7 @@ package controllers
 import (
 	"TuitionDaddy/Auth/initializers"
 	"TuitionDaddy/Auth/models"
-	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -16,7 +16,7 @@ import (
 var EXPIRATION_DATE_1MTH = 3600 * 24 * 30
 
 func Signup(c *gin.Context) {
-	// Get the email/pass from req body
+	// Get form components from req body
 	var body struct {
 		Email          string
 		Password       string
@@ -24,7 +24,6 @@ func Signup(c *gin.Context) {
 		Organisation   string
 		Role           string
 		EducationLevel string
-		Transcripts    []string // Assuming an array of strings for transcripts
 	}
 
 	if c.Bind(&body) != nil {
@@ -34,6 +33,20 @@ func Signup(c *gin.Context) {
 
 		return
 	}
+
+	// Obtain Transcript image and save it
+	// Upload the transcript to specific dst.
+	transcript, uploaderror := c.FormFile("Transcript")
+	log.Println(transcript.Filename)
+
+	if uploaderror != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not upload image",
+		})
+
+		return
+	}
+	c.SaveUploadedFile(transcript, "assets/"+transcript.Filename)
 
 	// Hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
@@ -45,18 +58,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// Convert the Transcripts field to a JSON string
-	transcriptsJSON, err := json.Marshal(body.Transcripts)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to parse transcripts",
-		})
-
-		return
-	}
-
-	// Update the struct with the JSON string for Transcripts
-	body.Transcripts = []string{string(transcriptsJSON)}
+	testString := "Suck this boii"
 
 	// Create user
 	user := models.User{
@@ -66,7 +68,7 @@ func Signup(c *gin.Context) {
 		Organisation:   body.Organisation,
 		Role:           body.Role,
 		EducationLevel: body.EducationLevel,
-		Transcripts:    body.Transcripts,
+		Transcript:     string(testString),
 	}
 	result := initializers.DB.Create(&user)
 

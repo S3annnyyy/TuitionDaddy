@@ -32,6 +32,10 @@ func main() {
 	// compiledaemon --command="./Auth"
 	// go run main.go
 	r := gin.Default()
+	r.Static("/assets", "./assets")
+
+	// Set file limit to 8Mib
+	r.MaxMultipartMemory = 8 << 20
 
 	// Enable CORS middleware
 	r.Use(corsMiddleware)

@@ -22,5 +22,5 @@ type User struct {
 	Organisation   string
 	Role           string
 	EducationLevel string
-	Transcripts    []string `gorm:"type:jsonb"`
+	Transcript     string
 }
