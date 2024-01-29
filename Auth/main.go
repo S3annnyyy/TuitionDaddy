@@ -12,6 +12,7 @@ func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectionManager()
 	initializers.SyncDatabase()
+	initializers.LoadS3Uploader()
 }
 
 // CORS middleware

@@ -3,11 +3,14 @@ package controllers
 import (
 	"TuitionDaddy/Auth/initializers"
 	"TuitionDaddy/Auth/models"
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -34,19 +37,43 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// Obtain Transcript image and save it
-	// Upload the transcript to specific dst.
-	transcript, uploaderror := c.FormFile("Transcript")
-	log.Println(transcript.Filename)
+	// Obtain Transcript image
+	image, retrievalError := c.FormFile("Transcript")
+	log.Println(image.Filename)
 
-	if uploaderror != nil {
+	if retrievalError != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve image",
+		})
+
+		return
+	}
+
+	// open image for upload
+	transcript, openErr := image.Open()
+	if openErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not open image",
+		})
+
+		return
+	}
+	// Upload the image to s3 bucket
+	// c.SaveUploadedFile(transcript, "assets/"+transcript.Filename)
+	uploadResult, uploadError := initializers.Uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String(os.Getenv("AWS_S3_BUCKET_NAME")),
+		Key:    aws.String(image.Filename),
+		Body:   transcript,
+		ACL:    "public-read",
+	})
+	if uploadError != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Could not upload image",
 		})
 
 		return
 	}
-	c.SaveUploadedFile(transcript, "assets/"+transcript.Filename)
+	transcriptLocation := uploadResult.Location
 
 	// Hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
@@ -58,8 +85,6 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	testString := "Suck this boii"
-
 	// Create user
 	user := models.User{
 		Email:          body.Email,
@@ -68,7 +93,7 @@ func Signup(c *gin.Context) {
 		Organisation:   body.Organisation,
 		Role:           body.Role,
 		EducationLevel: body.EducationLevel,
-		Transcript:     string(testString),
+		Transcript:     string(transcriptLocation),
 	}
 	result := initializers.DB.Create(&user)
 
