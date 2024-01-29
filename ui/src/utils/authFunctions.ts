@@ -19,24 +19,32 @@ export const handleLogin = async (email: string, password: string): Promise<bool
   }  
 };
 
-export const handleSignUp = async (email: string, password: string, fullname: string, organisation: string, educationLevel: string, transcript: File | undefined): Promise<boolean> => {
-  let transcriptUrl: string | undefined;
-  if (transcript) {transcriptUrl = URL.createObjectURL(transcript)}
-  console.log({email, password, fullname, organisation, educationLevel, transcript, transcriptUrl})
-  // const URL = `${import.meta.env.VITE_AUTH_ENDPOINT}/signup`
+export const handleSignUp = async (email: string, password: string, fullname: string, organisation: string, educationLevel: string, role: string, transcript: File | undefined): Promise<boolean> => {
+  console.log({email, password, fullname, organisation, educationLevel, role, transcript})
 
-  // // call endpoint to signup and store user details
-  // // return true if successful signup else false
-  // try {
-  //   const response = await axios.post(URL, {
-  //     "Email": email,
-  //     "Password": password
-  //   })
-  //   console.log(response)
-  //   return true
-  // } catch (error: unknown) {
-  //   console.log(`handleSignUp catch error: ${error}`)
-  //   return false
-  // }
-  return true
+  const URL = `${import.meta.env.VITE_AUTH_ENDPOINT}/signup`
+  const formData = new FormData();
+  formData.append("Email", email);
+  formData.append("Password", password);
+  formData.append("Username", fullname);
+  formData.append("Organisation", organisation);
+  formData.append("Role", role);
+  formData.append("EducationLevel", educationLevel);
+  if (transcript) {formData.append("Transcript", transcript);}    
+  
+
+  // call endpoint to signup and store user details
+  // return true if successful signup else false
+  try {
+    const response = await axios.post(URL, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    console.log(response)
+    return true
+  } catch (error: unknown) {
+    console.log(`handleSignUp catch error: ${error}`)
+    return false
+  } 
 }

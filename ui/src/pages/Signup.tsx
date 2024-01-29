@@ -12,12 +12,13 @@ const Signup = () => {
     const [fullname, setFullName] = useState<string>('');
     const [organisation, setOrganisation] = useState<string>('');
     const [educationLevel, setEducationLevel] = useState<string>('Select level');
+    const [role, setRole] = useState<string>('');
     const [transcript, setTranscript] = useState<File | undefined>();
     const navigate = useNavigate();
     
     const onFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();       
-        const signUpResult = await handleSignUp(email, password, fullname, organisation, educationLevel, transcript);   
+        const signUpResult = await handleSignUp(email, password, fullname, organisation, educationLevel, role, transcript);   
         if (signUpResult) {               
             navigate('/');
         }
@@ -33,7 +34,7 @@ const Signup = () => {
         >           
             <Link to="/" className="flex items-center mb-6 text-2xl font-semibold text-gray-900">
                 <PaperAirplaneIcon className="w-8 h-8 mr-2 text-primary" />
-                <span>Logo Here</span>
+                <span>TuitionDaddy</span>
             </Link>
             <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-2xl xl:p-0">
                 <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -73,7 +74,17 @@ const Signup = () => {
                                 </select>
                             </div>
 
-                            <div className='sm:col-span-6'>
+                            <div className='sm:col-span-2'>
+                                <label htmlFor="role" className="block mb-2 text-sm font-medium text-gray-900">Designation</label>
+                                <select id="role" className="login-form-component" value={role} onChange={e => setRole(e.target.value)} required>
+                                    <option value="">Select Role</option>                                    
+                                    <option value="student">Student</option>
+                                    <option value="teacher">Teacher</option>
+                                    <option value="parent">Parent</option>                                    
+                                </select>
+                            </div>
+
+                            <div className='sm:col-span-4'>
                                 <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor="file_input">Upload file</label>
                                 <input className="login-form-component" id="file_input" type="file" onChange={(e) => setTranscript(e.target.files?.[0])} required multiple/>
                                 <p className="mt-1 text-sm text-gray-500" id="file_input_help">PNG, JPG or PDF (MAX. 800x400px).</p>
