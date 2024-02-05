@@ -12,6 +12,9 @@ export const handleLogin = async (email: string, password: string): Promise<bool
       "Password": password
     })
     console.log(response)
+
+    // store username in sessionstorage
+    sessionStorage.setItem("username", response.data.username)    
     return true
   } catch (error: unknown) {
     console.log(`handleLogin catch error: ${error}`)

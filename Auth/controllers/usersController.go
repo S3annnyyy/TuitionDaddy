@@ -165,10 +165,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Send response back(cookie)
+	// Send response back(cookie) + username
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE_1MTH, "", "", false, true)
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{
+		"username": user.Username, // Include the username in the response
+	})
 }
 
 func Validate(c *gin.Context) {
