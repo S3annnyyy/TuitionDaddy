@@ -3,22 +3,30 @@ package controllers
 import (
 	"TuitionDaddy/Auth/initializers"
 	"TuitionDaddy/Auth/models"
+	"context"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var EXPIRATION_DATE = 3600 * 24 * 30
+var EXPIRATION_DATE_1MTH = 3600 * 24 * 30
 
 func Signup(c *gin.Context) {
-	// Get the email/pass from req body
+	// Get form components from req body
 	var body struct {
-		Email    string
-		Password string
+		Email          string
+		Password       string
+		Username       string
+		Organisation   string
+		Role           string
+		EducationLevel string
 	}
 
 	if c.Bind(&body) != nil {
@@ -28,6 +36,44 @@ func Signup(c *gin.Context) {
 
 		return
 	}
+
+	// Obtain Transcript image
+	image, retrievalError := c.FormFile("Transcript")
+	log.Println(image.Filename)
+
+	if retrievalError != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve image",
+		})
+
+		return
+	}
+
+	// open image for upload
+	transcript, openErr := image.Open()
+	if openErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not open image",
+		})
+
+		return
+	}
+	// Upload the image to s3 bucket
+	// c.SaveUploadedFile(transcript, "assets/"+transcript.Filename)
+	uploadResult, uploadError := initializers.Uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String(os.Getenv("AWS_S3_BUCKET_NAME")),
+		Key:    aws.String(image.Filename),
+		Body:   transcript,
+		ACL:    "public-read",
+	})
+	if uploadError != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not upload image",
+		})
+
+		return
+	}
+	transcriptLocation := uploadResult.Location
 
 	// Hash the password
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
@@ -40,12 +86,20 @@ func Signup(c *gin.Context) {
 	}
 
 	// Create user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{
+		Email:          body.Email,
+		Password:       string(hash),
+		Username:       body.Username,
+		Organisation:   body.Organisation,
+		Role:           body.Role,
+		EducationLevel: body.EducationLevel,
+		Transcript:     string(transcriptLocation),
+	}
 	result := initializers.DB.Create(&user)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create user",
+			"error": "Failed to create user due to: " + result.Error.Error(),
 		})
 
 		return
@@ -111,10 +165,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Send response back(cookie)
+	// Send response back(cookie) + username
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE, "", "", false, true)
-	c.JSON(http.StatusOK, gin.H{})
+	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE_1MTH, "", "", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"username": user.Username, // Include the username in the response
+	})
 }
 
 func Validate(c *gin.Context) {

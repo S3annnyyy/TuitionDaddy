@@ -12,6 +12,7 @@ func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectionManager()
 	initializers.SyncDatabase()
+	initializers.LoadS3Uploader()
 }
 
 // CORS middleware
@@ -30,8 +31,12 @@ func corsMiddleware(c *gin.Context) {
 
 func main() {
 	// compiledaemon --command="./Auth"
-	// go run .
+	// go run main.go
 	r := gin.Default()
+	r.Static("/assets", "./assets")
+
+	// Set file limit to 8Mib
+	r.MaxMultipartMemory = 8 << 20
 
 	// Enable CORS middleware
 	r.Use(corsMiddleware)
