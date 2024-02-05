@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { slideInFromBottom } from '../utils/motion' 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const primaryData = [
   { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 1', price: 12.94 },
@@ -29,13 +30,17 @@ const selection = [
 const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number}): JSX.Element => {
   const {imgSrc, itemName, itemPrice} = props
   return (
-    <div className="sm:col-span-1 rounded shadow-lg">
+    <Link to={`/marketplace/placeholderproductID`}>
+      <div className="sm:col-span-1 rounded shadow-lg">
       <img className="w-full h-full object-cover" src={imgSrc}/>
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{itemName}</div>
-        <p className="text-gray-700 text-base">S${itemPrice}</p>        
+        {itemPrice === 0 ? 
+          <button className="px-5 py-1 align-middle text-gray-700 rounded-full bg-green-500">Free</button> : <p className="text-gray-700 text-base">S${itemPrice}</p>  
+        }           
       </div>  
     </div>
+    </Link>
   )
 }
 

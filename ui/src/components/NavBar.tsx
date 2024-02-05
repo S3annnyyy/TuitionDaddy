@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PaperAirplaneIcon, MoonIcon, SunIcon, UserIcon, Bars3CenterLeftIcon } from "@heroicons/react/24/outline"
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -38,6 +38,17 @@ const NavBar = () => {
   const [isLoggedIn, setLoginStatus] = useState<boolean>(false);  
   const close = () => setModalOpen(false);
   const open = () => setModalOpen(true);
+
+  useEffect(() => {
+    // Check if username exists  
+    sessionStorage.getItem('username') ? setLoginStatus(true) : setLoginStatus(false);    
+  }, []);
+
+  function getUserName() {
+    if (sessionStorage.getItem("username")) {        
+        return sessionStorage.getItem("username")
+    } else {return ""}
+  }  
   
   return ( 
     <nav>
@@ -67,13 +78,13 @@ const NavBar = () => {
               <LightDarkToggleBtn />
 
               <div>
-                {isLoggedIn ? (<p>Welcome!</p>) : (<motion.button 
+                {isLoggedIn ? (<p>Welcome {getUserName()}!</p>) : (<motion.button 
                   className="align-middle rounded-full border-solid border-2 border-gray-800 py-2 px-4 hover:outline outline-offset-2 hover:outline-primary"
                   onClick={() => (modalOpen ? close() : open())}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  Sign Up<UserIcon className="h-5 w-5 inline"/>                    
+                  Sign In<UserIcon className="h-5 w-5 inline"/>                    
                 </motion.button>)
                 }
               </div>
