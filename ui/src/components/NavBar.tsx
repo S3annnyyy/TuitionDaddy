@@ -7,7 +7,7 @@ import Modal from "./LoginModal";
 const navigation = [
   {name: "Home", ref: "/" , active: true},
   {name: "Marketplace", ref: "/marketplace" , active: false},
-  {name: "Microservice 2", ref: "/s2" , active: false},
+  {name: "Class", ref: "/class" , active: false},
   {name: "Microservice 3", ref: "/s3" , active: false},
 ]
 
