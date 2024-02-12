@@ -181,3 +181,12 @@ func Validate(c *gin.Context) {
 		"message": userEmail + " user is logged in",
 	})
 }
+
+func RetrieveTranscript(c *gin.Context) {
+	user, _ := c.Get("user")
+	userTranscriptUrl := user.(models.User).Transcript
+
+	c.JSON(http.StatusOK, gin.H{
+		"response": userTranscriptUrl,
+	})
+}
