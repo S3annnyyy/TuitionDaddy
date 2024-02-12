@@ -58,13 +58,17 @@ func Signup(c *gin.Context) {
 
 		return
 	}
+
+	// get file type of image and parse to s3
+	fileType := GetContentType(image.Filename)
 	// Upload the image to s3 bucket
-	// c.SaveUploadedFile(transcript, "assets/"+transcript.Filename)
 	uploadResult, uploadError := initializers.Uploader.Upload(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(os.Getenv("AWS_S3_BUCKET_NAME")),
-		Key:    aws.String(image.Filename),
-		Body:   transcript,
-		ACL:    "public-read",
+		Bucket:             aws.String(os.Getenv("AWS_S3_BUCKET_NAME")),
+		Key:                aws.String(image.Filename),
+		Body:               transcript,
+		ACL:                "public-read",
+		ContentDisposition: aws.String("inline"),
+		ContentType:        aws.String(fileType),
 	})
 	if uploadError != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -179,5 +183,14 @@ func Validate(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": userEmail + " user is logged in",
+	})
+}
+
+func RetrieveTranscript(c *gin.Context) {
+	user, _ := c.Get("user")
+	userTranscriptUrl := user.(models.User).Transcript
+
+	c.JSON(http.StatusOK, gin.H{
+		"response": userTranscriptUrl,
 	})
 }
