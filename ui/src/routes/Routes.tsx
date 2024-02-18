@@ -4,7 +4,9 @@ import Home from '../pages/Home'
 import Marketplace from '../pages/Marketplace'
 import Signup from '../pages/Signup'
 import Product from '../pages/Product'
+import Tutors from '../pages/Tutors'
 import Class from '../pages/Class'
+import GPTcher from '../pages/GPTcher'
 
 export const router = createBrowserRouter([
     {
@@ -12,10 +14,12 @@ export const router = createBrowserRouter([
         element: <App />,
         children: [
             { path: "", element: <Home /> },
+            { path: "signup", element: <Signup /> },
             { path: "marketplace", element: <Marketplace /> },
             { path: 'marketplace/:productId', element: <Product /> },
-            { path: "signup", element: <Signup /> },
-            { path: "class", element: <Class /> }
+            { path: "tutors", element: <Tutors /> },
+            { path: "class", element: <Class /> },
+            { path: "gptcher", element: <GPTcher /> }
 
         ]
     }
