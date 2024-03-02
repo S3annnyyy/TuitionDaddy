@@ -1,2 +1,9 @@
+<<<<<<< Updated upstream
 **/.env
 go.work.sum
+=======
+Auth/.env
+go.work.sum
+gpt/node_modules
+gpt/files
+>>>>>>> Stashed changes
