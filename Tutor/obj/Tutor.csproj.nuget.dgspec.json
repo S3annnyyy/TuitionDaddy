@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\wamp64\\www\\TuitionDaddy\\Class\\ClassApi\\ClassApi.csproj": {}
+    "C:\\wamp64\\www\\TuitionDaddy\\Tutor\\Tutor.csproj": {}
   },
   "projects": {
-    "C:\\wamp64\\www\\TuitionDaddy\\Class\\ClassApi\\ClassApi.csproj": {
+    "C:\\wamp64\\www\\TuitionDaddy\\Tutor\\Tutor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\wamp64\\www\\TuitionDaddy\\Class\\ClassApi\\ClassApi.csproj",
-        "projectName": "ClassApi",
-        "projectPath": "C:\\wamp64\\www\\TuitionDaddy\\Class\\ClassApi\\ClassApi.csproj",
+        "projectUniqueName": "C:\\wamp64\\www\\TuitionDaddy\\Tutor\\Tutor.csproj",
+        "projectName": "Tutor",
+        "projectPath": "C:\\wamp64\\www\\TuitionDaddy\\Tutor\\Tutor.csproj",
         "packagesPath": "C:\\Users\\Eunice Sng\\.nuget\\packages\\",
-        "outputPath": "C:\\wamp64\\www\\TuitionDaddy\\Class\\ClassApi\\obj\\",
+        "outputPath": "C:\\wamp64\\www\\TuitionDaddy\\Tutor\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Eunice Sng\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -37,6 +37,16 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.4.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
