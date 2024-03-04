@@ -110,12 +110,24 @@ def upload_study_resource():
 
 @app.route("/studyresources/all", methods=['GET'])
 def get_all_resources():
-    raise NotImplementedError   
+    try: 
+        resources = db.session.scalars(db.select(StudyResource)).all()
+        if len(resources):
+            return jsonResponse(200, data=[resource.json() for resource in resources])
+    except Exception as e:
+        return jsonResponse(500, code=500, message="Failed to get all resources. " + str(e))
 
 
 @app.route("/studyresources/<string:level>", methods=['GET'])
 def get_resources_by_level(level):
-    raise NotImplementedError
+    try:
+        resources = db.session.scalars(db.select(StudyResource).where(StudyResource.resourceLevel==level)).all()
+        if len(resources):
+            return jsonResponse(200, data=[resource.json() for resource in resources])
+        else:
+            return jsonResponse(404, message="No data found")
+    except Exception as e:
+        return jsonResponse(500, data={"resourceLevel":level}, message="An error occurred while filtering resources by level. "+str(e))
 
      
 if __name__ == "__main__":   
