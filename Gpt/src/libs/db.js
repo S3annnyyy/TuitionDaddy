@@ -1,13 +1,6 @@
 import pkg from "pg";
 const { Client } = pkg;
 
-const CLIENT_CONFIG = {
-    user: 'dohhvmjc',
-    host: 'tiny.db.elephantsql.com',
-    password: 'oEBKjYiqpup99HUNLtRmj4h00CBYRCHj',
-    db: 'dohhvmjc',
-    port: 5432
-};
 
 async function verifyConnection() {
     try {
