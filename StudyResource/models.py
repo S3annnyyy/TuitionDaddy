@@ -14,8 +14,18 @@ class StudyResource(db.Model):
     resourceThumbnailURL = db.Column(db.String(255), nullable=False)
     resourceLevel = db.Column(db.String(255), nullable=False)    
     sellerID = db.Column(db.Integer, nullable=False)
-    sellerName = db.Column(db.String(255), unique=True, nullable=False)    
-    
+    sellerName = db.Column(db.String(255), unique=True, nullable=False)
 
-    def __repr__(self):
-         return f"<StudyResource(uuid={self.uuid}, resourceID={self.resourceID}, resourceName={self.resourceName}, resourcePrice={self.resourcePrice}, resources3URL={self.resources3URL}, sellerID={self.sellerID}, sellerName={self.sellerName})>"
+    def json(self):
+        return {
+            "uuid": str(self.uuid),
+            "resourceID": str(self.resourceID),
+            "resourceName": self.resourceName,
+            "resourceDesc": self.resourceDesc,
+            "resourcePrice": float(self.resourcePrice) if self.resourcePrice is not None else None,
+            "resources3URL": self.resources3URL,
+            "resourceThumbnailURL": self.resourceThumbnailURL,
+            "resourceLevel": self.resourceLevel,
+            "sellerID": self.sellerID,
+            "sellerName": self.sellerName
+        }

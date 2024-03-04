@@ -39,16 +39,12 @@ def jsonResponse(rescode, **kwargs):
 
 @app.route("/studyresource/<string:resourceID>", methods=['GET'])
 def get_study_resource(resourceID):
-    try:        
-        # from models import User 
-        # new_user = User(username='asdasdasn', email='asdsadasdjn@example.com')
-        # db.session.add(new_user)
-        # db.session.commit()    
-        # connect to database, retrieve resource base on resourceID specified
-        # if resourceID not found, return NotFoundError
-        raise NotImplementedError   
+    try:
+        resource = db.session.scalars(db.select(StudyResource).filter_by(resourceID=resourceID).limit(1)).first()
+        if resource:
+            return jsonResponse(200, data=resource.json())
     except Exception as e:
-        return jsonResponse(500, code=500, data={"resourceID":resourceID}, message="An error occurred while getting resourceID. "+str(e))
+        return jsonResponse(500, data={"resourceID":resourceID}, message="An error occurred while getting resourceID. "+str(e))
             
     
 @app.route("/studyresource/upload", methods=['POST'])
