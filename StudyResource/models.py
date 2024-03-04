@@ -1,10 +1,24 @@
 from app import db
+from uuid import uuid4
 
-class User(db.Model):
+class StudyResource(db.Model):
     __tablename__ = "studyresource"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    uuid = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid4)
+    resourceID = db.Column(db.BIGINT, unique=True, nullable=False)
+    resourceName = db.Column(db.String(255), nullable=False)  
+    resourcePrice = db.Column(db.Numeric(precision=10, scale=2))
+    resources3URL = db.Column(db.String(255), nullable=False)
+    resourceLevel = db.Column(db.String(255), nullable=False)    
+    sellerID = db.Column(db.Integer, nullable=False)
+    sellerName = db.Column(db.String(255), unique=True, nullable=False)    
+    
 
     def __repr__(self):
-        return '<User %r>' % self.username
+         return f"<StudyResource(
+                uuid={self.uuid}, 
+                resourceID={self.resourceID}, 
+                resourceName={self.resourceName}, 
+                resourcePrice={self.resourcePrice}, 
+                resources3URL={self.resources3URL}, 
+                sellerID={self.sellerID}, 
+                sellerName={self.sellerName})>"
