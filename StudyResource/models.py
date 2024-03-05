@@ -14,7 +14,7 @@ class StudyResource(db.Model):
     resourceThumbnailURL = db.Column(db.String(255), nullable=False)
     resourceLevel = db.Column(db.String(255), nullable=False)    
     sellerID = db.Column(db.Integer, nullable=False)
-    sellerName = db.Column(db.String(255), unique=True, nullable=False)
+    sellerName = db.Column(db.String(255), nullable=False)
 
     def json(self):
         return {
