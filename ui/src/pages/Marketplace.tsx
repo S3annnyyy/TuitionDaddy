@@ -1,21 +1,8 @@
 import { motion } from 'framer-motion'
 import { slideInFromBottom } from '../utils/motion' 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const primaryData = [
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 1', price: 12.94 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 2', price: 92.45 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 3', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 4', price: 47.60 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 5', price: 15.37 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 6', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 7', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 8', price: 5.13 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 9', price: 33.26 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 10', price: 41.68 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 11', price: 60.92 }
-]
+import { getAllResources, getResourcesByLevel } from '../utils/mktplaceFunctions'
 
 const selection = [
   { name: "ALL", status: true },
@@ -47,10 +34,16 @@ const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number}):
 const Marketplace = () => {
   const [category, setCategory] = useState<string>("all")
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
+  const [primaryData, setPrimaryData] = useState<any[]>([]);
+  const [noData, setNoData] = useState<boolean>(false);
+
+  useEffect(() => {    
+    getAllResources(setPrimaryData)    
+  }, []);    
 
   const handleCategorySelection = (selectedCategory: string, index: number) => {    
     setCategory(selectedCategory);
-    console.log(`Selected ${selectedCategory} category, index: ${index}`);
+    console.log(`Selected ${selectedCategory} category, index: ${index}, Pre category: ${category}`);
 
     // when selected
     // set prev status to false
@@ -58,8 +51,23 @@ const Marketplace = () => {
     // set current index to true
     setActiveBtnIndex(index)
     selection[index]["status"] = true
-    // once DB set up import function here to retrieve all the items related to the level
-    // TODO
+    // retrieve all the items related to the level    
+    if (selectedCategory === "ALL") {
+      setNoData(false)
+      getAllResources(setPrimaryData)
+    } else {
+      getResourcesByLevel(setPrimaryData, selectedCategory)
+      .then(() => {
+        console.log("successfully filtered data by level");
+        setNoData(false)       
+      })
+      .catch(error => {
+          console.error('Error fetching data:', error);
+          //TODO SET UP SHOW NO RESOURCES
+          setPrimaryData([])
+          setNoData(true)         
+      });
+    }
   };  
 
   return (
@@ -79,10 +87,11 @@ const Marketplace = () => {
       </section>
 
       {/* Content portion */}
-      <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>  
+      <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>          
+          {noData && <p>No available resources at the level</p>}  
           {primaryData.map((item, index) => {
             return (
-              <ItemCard key={index} imgSrc={item.imgSrc} itemName={item.name} itemPrice={item.price}/>
+              <ItemCard key={index} imgSrc={item.resourceThumbnailURL} itemName={item.resourceName} itemPrice={item.resourcePrice}/>
             )
           })}
       </section>
