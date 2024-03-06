@@ -37,7 +37,9 @@ const Marketplace = () => {
   const [primaryData, setPrimaryData] = useState<any[]>([]);
   const [noData, setNoData] = useState<boolean>(false);
 
-  useEffect(() => {    
+  useEffect(() => {
+    setCategory("all")
+    setActiveBtnIndex(0)    
     getAllResources(setPrimaryData)    
   }, []);    
 
