@@ -37,7 +37,7 @@ def jsonResponse(rescode, **kwargs):
     return jsonify(res_data), rescode
 
 
-@app.route("/studyresource/<string:resourceID>", methods=['GET'])
+@app.route("/studyresources/<string:resourceID>", methods=['GET'])
 def get_study_resource(resourceID):
     try:
         resource = db.session.scalars(db.select(StudyResource).filter_by(resourceID=resourceID).limit(1)).first()
