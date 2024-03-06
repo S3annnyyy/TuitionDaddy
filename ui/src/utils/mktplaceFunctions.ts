@@ -21,3 +21,14 @@ export const getResourcesByLevel = async (setPrimaryData:any, level:string) => {
         throw error; 
     }
 }
+
+export const getResourceByID = async (resourceID: string) => {
+    const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/${resourceID}`
+    try {
+        const response = await axios.get(URL);         
+        console.log(response.data.data)
+        return response
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}

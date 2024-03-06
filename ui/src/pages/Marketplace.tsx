@@ -14,10 +14,10 @@ const selection = [
   { name: "UNIVERSITY", status: false }
 ]
 
-const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number}): JSX.Element => {
-  const {imgSrc, itemName, itemPrice} = props
+const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number, itemID: string}): JSX.Element => {
+  const {imgSrc, itemName, itemPrice, itemID} = props
   return (
-    <Link to={`/marketplace/placeholderproductID`}>
+    <Link to={`/marketplace/${itemID}`}>
       <div className="sm:col-span-1 rounded shadow-lg">
       <img className="w-full h-full object-cover" src={imgSrc}/>
       <div className="px-6 py-4">
@@ -104,7 +104,7 @@ const Marketplace = () => {
       <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>           
           {primaryData.map((item, index) => {
             return (
-              <ItemCard key={index} imgSrc={item.resourceThumbnailURL} itemName={item.resourceName} itemPrice={item.resourcePrice}/>
+              <ItemCard key={index} imgSrc={item.resourceThumbnailURL} itemName={item.resourceName} itemPrice={item.resourcePrice} itemID={item.resourceID}/>
             )
           })}
       </section>
