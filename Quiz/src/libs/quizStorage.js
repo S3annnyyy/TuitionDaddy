@@ -20,7 +20,7 @@ const QuizStorage = multer.diskStorage({
     },
         filename: function(req, file, cb) {
             const uniqueSuffix = uuidv4();
-            const fileName = `${file.fieldname}-${Date.now()}-${uniqueSuffix}-${file.originalname}`;
+            const fileName = `${uniqueSuffix}-${file.originalname}`;
             cb(null, fileName);
         },
 });
