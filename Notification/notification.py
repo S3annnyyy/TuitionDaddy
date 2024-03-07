@@ -23,12 +23,28 @@ def receiveNotification(channel):
 
 def callback(channel, method, properties, body): # required signature for the callback; no return
     print("\nNotification: Received a user to notify by " + __file__)
-    processNotification(json.loads(body))
+
+    purchaseNotification(json.loads(body))
+
+    bookingNotification(json.loads(body))
+
+    gptcherNotification(json.loads(body))
+
+
     print()
 
-def processNotification(order):
+def purchaseNotification(order):
     #add to the database
-    print("Notification: Notification recorded successfully")
+    print("Notification: Purchase notification recorded successfully")
+
+def bookingNotification(order):
+    #add to the database
+    print("Notification: Booking notification recorded successfully")
+
+def gptcherNotification(order):
+    #add to the database
+    print("Notification: GPTcher notification recorded successfully")
+
 
 if __name__ == "__main__":  # execute this program only if it is run as a script (not by 'import')
     print("Notification: Getting Connection")
