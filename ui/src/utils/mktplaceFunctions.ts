@@ -12,7 +12,7 @@ export const getAllResources = async (setPrimaryData:any) => {
 }
 
 export const getResourcesByLevel = async (setPrimaryData:any, level:string) => {
-    const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/${level}`
+    const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/level/${level}`
     try {
         const response = await axios.get(URL);   
         setPrimaryData(response.data.data)

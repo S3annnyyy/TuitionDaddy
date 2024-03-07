@@ -118,7 +118,7 @@ def get_all_resources():
         return jsonResponse(500, code=500, message="Failed to get all resources. " + str(e))
 
 
-@app.route("/studyresources/<string:level>", methods=['GET'])
+@app.route("/studyresources/level/<string:level>", methods=['GET'])
 def get_resources_by_level(level):
     try:
         resources = db.session.scalars(db.select(StudyResource).where(StudyResource.resourceLevel==level)).all()
