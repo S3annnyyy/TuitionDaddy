@@ -6,7 +6,7 @@ import Signup from '../pages/Signup'
 import Product from '../pages/Product'
 import Tutors from '../pages/Tutors'
 import Class from '../pages/Class'
-import GPTcher from '../pages/GPTcher'
+import Quiz from '../pages/Quiz'
 
 export const router = createBrowserRouter([
     {
@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
             { path: 'marketplace/:productId', element: <Product /> },
             { path: "tutors", element: <Tutors /> },
             { path: "class", element: <Class /> },
-            { path: "gptcher", element: <GPTcher /> }
+            { path: "gptcher", element: <Quiz /> }
 
         ]
     }

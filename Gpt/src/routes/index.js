@@ -1,7 +1,7 @@
-import quizRoutes from "./quiz/index.js";
+import quizRoutes from "./quizzes/index.js";
 
 function setupRoutes(app) {
-    app.use("/quiz", quizRoutes);
+    app.use("/quizzes", quizRoutes);
 }
 
 export default {

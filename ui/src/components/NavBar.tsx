@@ -9,7 +9,7 @@ const navigation = [
   { name: "Marketplace", ref: "/marketplace", active: false },
   { name: "Tutors", ref: "/tutors" , active: false },
   { name: "Class", ref: "/class", active: false },
-  { name: "GPTcher", ref: "/gptcher", active: false },
+  { name: "Quiz", ref: "/quiz", active: false },
 ]
 
 const CustomNavLink = (props: { children: string, href: string }): JSX.Element => {
