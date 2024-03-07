@@ -1,0 +1,17 @@
+Use this file to test out the websocket communications
+
+{
+  "action": "join",
+  "room": "room 1",
+  "message": "",
+  "image": false,
+  "userId": "1"
+}
+
+{
+  "action": "message",
+  "room": "room 1",
+  "message": "hi",
+  "image": false,
+  "userId": "1"
+}
