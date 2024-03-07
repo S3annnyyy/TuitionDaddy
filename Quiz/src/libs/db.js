@@ -1,6 +1,12 @@
 import pkg from "pg";
+import dotenv from 'dotenv';
+
+dotenv.config();
 const { Client } = pkg;
 
+const CLIENT_CONFIG = {
+    connectionString: process.env.DB_URI,
+};
 
 async function verifyConnection() {
     try {

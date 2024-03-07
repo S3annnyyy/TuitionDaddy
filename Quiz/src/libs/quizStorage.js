@@ -2,6 +2,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,8 +19,10 @@ const QuizStorage = multer.diskStorage({
         cb(null, savePath);
     },
         filename: function(req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);
-    },
+            const uniqueSuffix = uuidv4();
+            const fileName = `${file.fieldname}-${Date.now()}-${uniqueSuffix}-${file.originalname}`;
+            cb(null, fileName);
+        },
 });
 
 export default QuizStorage;
