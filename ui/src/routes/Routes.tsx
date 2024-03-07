@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
             { path: "", element: <Home /> },
             { path: "signup", element: <Signup /> },
             { path: "marketplace", element: <Marketplace /> },
-            { path: 'marketplace/:productId', element: <Product /> },
+            { path: 'marketplace/:itemID', element: <Product /> },
             { path: "tutors", element: <Tutors /> },
             { path: "class", element: <Class /> },
             { path: "gptcher", element: <GPTcher /> }
