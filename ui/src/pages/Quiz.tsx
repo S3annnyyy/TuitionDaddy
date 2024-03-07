@@ -3,7 +3,8 @@ import { useState } from "react";
 const Quiz = () => {
     const [text, setText] = useState("");
     const [file, setFile] = useState(null); 
-    const [userInfo, setUserInfo] = useState({ name: "", id: "", age: "" }); 
+    const [userInfo, setUserInfo] = useState({ name: "", id: "", age: "" });
+    const [quizUuid, setQuizUuid] = useState("");
 
     async function MakeRequest() {
         try {
@@ -15,9 +16,11 @@ const Quiz = () => {
     
             formData.append("file", file); 
             formData.append("name", userInfo.name);
-            formData.append("age", userInfo.age);
-    
-            const url = "http://localhost:8000/quiz/pdf/" + userInfo.id;
+            formData.append("userId", userInfo.id);
+            formData.append("quizUuid", quizUuid);
+
+            const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+            const url = `${baseUrl}/quiz/pdf/${userInfo.id}`;            
     
             const req = await fetch(url, {
                 method: 'POST',
@@ -49,9 +52,9 @@ const Quiz = () => {
             />
             <input 
                 type="text" 
-                placeholder="Age" 
-                value={userInfo.age} 
-                onChange={(e) => setUserInfo({ ...userInfo, age: e.target.value })} 
+                placeholder="Quiz UUID" 
+                value={quizUuid} 
+                onChange={(e) => setQuizUuid(e.target.value)} 
             />
             {text && <h1>{text}</h1>}
             <button onClick={MakeRequest}>test</button>
