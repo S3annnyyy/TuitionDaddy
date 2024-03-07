@@ -1,21 +1,8 @@
 import { motion } from 'framer-motion'
 import { slideInFromBottom } from '../utils/motion' 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const primaryData = [
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 1', price: 12.94 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 2', price: 92.45 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 3', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 4', price: 47.60 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 5', price: 15.37 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 6', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 7', price: 0 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 8', price: 5.13 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 9', price: 33.26 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 10', price: 41.68 },
-  { imgSrc: 'https://contents.sixshop.com/thumbnails/uploadedFiles/225377/product/image_1706076925053_1000.jpg', name: 'Product 11', price: 60.92 }
-]
+import { getAllResources, getResourcesByLevel } from '../utils/mktplaceFunctions'
 
 const selection = [
   { name: "ALL", status: true },
@@ -27,10 +14,10 @@ const selection = [
   { name: "UNIVERSITY", status: false }
 ]
 
-const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number}): JSX.Element => {
-  const {imgSrc, itemName, itemPrice} = props
+const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number, itemID: string}): JSX.Element => {
+  const {imgSrc, itemName, itemPrice, itemID} = props
   return (
-    <Link to={`/marketplace/placeholderproductID`}>
+    <Link to={`/marketplace/${itemID}`}>
       <div className="sm:col-span-1 rounded shadow-lg">
       <img className="w-full h-full object-cover" src={imgSrc}/>
       <div className="px-6 py-4">
@@ -47,10 +34,18 @@ const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number}):
 const Marketplace = () => {
   const [category, setCategory] = useState<string>("all")
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
+  const [primaryData, setPrimaryData] = useState<any[]>([]);
+  const [noData, setNoData] = useState<boolean>(false);
+
+  useEffect(() => {
+    setCategory("all")
+    setActiveBtnIndex(0)    
+    getAllResources(setPrimaryData)    
+  }, []);    
 
   const handleCategorySelection = (selectedCategory: string, index: number) => {    
     setCategory(selectedCategory);
-    console.log(`Selected ${selectedCategory} category, index: ${index}`);
+    console.log(`Selected ${selectedCategory} category, index: ${index}, Pre category: ${category}`);
 
     // when selected
     // set prev status to false
@@ -58,8 +53,22 @@ const Marketplace = () => {
     // set current index to true
     setActiveBtnIndex(index)
     selection[index]["status"] = true
-    // once DB set up import function here to retrieve all the items related to the level
-    // TODO
+    // retrieve all the items related to the level    
+    if (selectedCategory === "ALL") {
+      setNoData(false)
+      getAllResources(setPrimaryData)
+    } else {
+      getResourcesByLevel(setPrimaryData, selectedCategory)
+      .then(() => {
+        console.log("successfully filtered data by level");
+        setNoData(false)       
+      })
+      .catch(error => {
+          console.error('Error fetching data:', error);          
+          setPrimaryData([])
+          setNoData(true)         
+      });
+    }
   };  
 
   return (
@@ -79,10 +88,23 @@ const Marketplace = () => {
       </section>
 
       {/* Content portion */}
-      <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>  
+      {noData &&
+      <section className='flex justify-center items-center'>
+        <div id="toast-danger" className="flex items-center max-w-md p-4 mb-4 text-gray-500 rounded-lg shadow" role="alert">
+          <div className="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg">
+              <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
+              </svg>
+              <span className="sr-only">Error icon</span>
+          </div>
+          <div className="ms-3 text-sm font-normal">No resources for sale at this level at this moment.</div>          
+        </div>        
+      </section>     
+      }  
+      <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>           
           {primaryData.map((item, index) => {
             return (
-              <ItemCard key={index} imgSrc={item.imgSrc} itemName={item.name} itemPrice={item.price}/>
+              <ItemCard key={index} imgSrc={item.resourceThumbnailURL} itemName={item.resourceName} itemPrice={item.resourcePrice} itemID={item.resourceID}/>
             )
           })}
       </section>
