@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const GPTcher = () => {
+const Quiz = () => {
     const [text, setText] = useState("");
     const [file, setFile] = useState(null); 
     const [userInfo, setUserInfo] = useState({ name: "", id: "", age: "" }); 
@@ -59,4 +59,4 @@ const GPTcher = () => {
     );
 }
 
-export default GPTcher;
+export default Quiz;

@@ -1,5 +1,5 @@
 import express from "express";
-import QuizControllers from "../../controllers/quiz/index.js";
+import QuizControllers from "../../controllers/quizcontroller/index.js";
 import multer from "multer";
 
 import QuizStorage from "../../libs/quizStorage.js";
