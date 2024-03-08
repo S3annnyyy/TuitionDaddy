@@ -2,8 +2,8 @@ import { useState } from "react";
 
 const Quiz = () => {
     const [text, setText] = useState("");
-    const [file, setFile] = useState(null); 
-    const [userInfo, setUserInfo] = useState({ name: "", id: "", age: "" });
+    const [file, setFile] = useState<File | null>(null);
+    const [userInfo, setUserInfo] = useState({ name: "", id: ""});
     const [quizUuid, setQuizUuid] = useState("");
 
     async function MakeRequest() {
@@ -17,10 +17,8 @@ const Quiz = () => {
             formData.append("file", file); 
             formData.append("name", userInfo.name);
             formData.append("userId", userInfo.id);
-            formData.append("quizUuid", quizUuid);
 
-            const baseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
-            const url = `${baseUrl}/quiz/pdf/${userInfo.id}`;            
+            const url = `http://localhost:8000/quiz/pdf/${userInfo.id}`;            
     
             const req = await fetch(url, {
                 method: 'POST',
@@ -31,13 +29,13 @@ const Quiz = () => {
             setText(res);
         } catch (error) {
             console.log(error);
-            setText("Error occurred");
+            setText(`Error occurred: ${error}`);
         }
     }
 
     return (
         <>
-            <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+            <input type="file" onChange={(e) => e.target.files && setFile(e.target.files[0])} />
             <input 
                 type="text" 
                 placeholder="Name" 
