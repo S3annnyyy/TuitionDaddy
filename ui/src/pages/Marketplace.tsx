@@ -35,12 +35,12 @@ const Marketplace = () => {
   const [category, setCategory] = useState<string>("all")
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
   const [primaryData, setPrimaryData] = useState<any[]>([]);
-  const [noData, setNoData] = useState<boolean>(false);
+  const [noData, setNoData] = useState<boolean>(true);
 
   useEffect(() => {
     setCategory("all")
     setActiveBtnIndex(0)    
-    getAllResources(setPrimaryData)    
+    getAllResources(setPrimaryData, setNoData)    
   }, []);    
 
   const handleCategorySelection = (selectedCategory: string, index: number) => {    
@@ -56,7 +56,7 @@ const Marketplace = () => {
     // retrieve all the items related to the level    
     if (selectedCategory === "ALL") {
       setNoData(false)
-      getAllResources(setPrimaryData)
+      getAllResources(setPrimaryData, setNoData)
     } else {
       getResourcesByLevel(setPrimaryData, selectedCategory)
       .then(() => {
@@ -90,7 +90,7 @@ const Marketplace = () => {
       {/* Content portion */}
       {noData &&
       <section className='flex justify-center items-center'>
-        <div id="toast-danger" className="flex items-center max-w-md p-4 mb-4 text-gray-500 rounded-lg shadow" role="alert">
+        <motion.div variants={slideInFromBottom} initial="hidden" animate="visible"id="toast-danger" className="flex items-center max-w-md p-4 mb-4 text-gray-500 rounded-lg shadow" role="alert">
           <div className="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-500 bg-red-100 rounded-lg">
               <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 11.793a1 1 0 1 1-1.414 1.414L10 11.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L8.586 10 6.293 7.707a1 1 0 0 1 1.414-1.414L10 8.586l2.293-2.293a1 1 0 0 1 1.414 1.414L11.414 10l2.293 2.293Z"/>
@@ -98,7 +98,7 @@ const Marketplace = () => {
               <span className="sr-only">Error icon</span>
           </div>
           <div className="ms-3 text-sm font-normal">No resources for sale at this level at this moment.</div>          
-        </div>        
+        </motion.div>        
       </section>     
       }  
       <section className='justify-center items-center grid sm:grid-cols-4 sm:gap-4 mx-20'>           
