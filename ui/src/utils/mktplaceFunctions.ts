@@ -1,9 +1,10 @@
 import axios from 'axios'
 
-export const getAllResources = async (setPrimaryData:any) => {
+export const getAllResources = async (setPrimaryData:any, setNoData:any) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/all`
     try {
-        const response = await axios.get(URL);   
+        const response = await axios.get(URL);
+        setNoData(false)   
         setPrimaryData(response.data.data)
         console.log(response.data.data)
     } catch (error) {
