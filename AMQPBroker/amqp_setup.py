@@ -2,8 +2,19 @@ import time
 import pika
 from os import environ
 
+from dotenv import load_dotenv
+import os
+
+# Manually load the .env file
+load_dotenv()
+
+# Print out the loaded environment variables
+print(os.environ)
+
+
 # Instead of hardcoding the values, we can also get them from the environ as shown below
 hostname = environ.get('HOSTNAME') #localhost
+print(environ.get('HOSTNAME'))
 port = environ.get('PORT')         #5672 
 
 exchangename = environ.get('EXCHANGENAME') #order_topic

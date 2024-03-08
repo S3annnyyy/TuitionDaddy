@@ -3,6 +3,11 @@ import amqp_connection
 import json
 import pika
 from os import environ
+from dotenv import load_dotenv
+import os
+
+# Manually load the .env file
+load_dotenv()
 
 # Instead of hardcoding the values, we can also get them from the environ as shown below
 e_queue_name = environ.get('E_QUEUE_NAME') #Error
@@ -28,21 +33,21 @@ def callback(channel, method, properties, body): # required signature for the ca
     #logic to call the error processing function
 
     #scenario 1: errors
-    sellerCredentialsError(json.loads(body))
+    sellerCredentialsError(body)
 
-    paymentConfirmationError(json.loads(body))
+    paymentConfirmationError(body)
 
-    studyResourceError(json.loads(body))
+    studyResourceError(body)
 
     #scenario 2: errors
-    bookingResultError(json.loads(body))
+    bookingResultError(body)
 
-    zoomLinkError(json.loads(body))
+    zoomLinkError(body)
 
     #scenario 3: errors
-    OpenAIError(json.loads(body))
+    OpenAIError(body)
 
-    print()
+    # print()
 
 # def processError(errorMsg):
 #     print("error microservice: Printing the error message:")

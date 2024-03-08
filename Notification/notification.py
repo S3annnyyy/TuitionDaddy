@@ -3,6 +3,11 @@ import amqp_connection
 import json
 import pika
 from os import environ
+from dotenv import load_dotenv
+import os
+
+# Manually load the .env file
+load_dotenv()
 
 n_queue_name = environ.get('N_QUEUE_NAME') #Activity_Log
 
@@ -24,14 +29,14 @@ def receiveNotification(channel):
 def callback(channel, method, properties, body): # required signature for the callback; no return
     print("\nNotification: Received a user to notify by " + __file__)
 
-    purchaseNotification(json.loads(body))
+    purchaseNotification(body)
 
-    bookingNotification(json.loads(body))
+    bookingNotification(body)
 
-    gptcherNotification(json.loads(body))
+    gptcherNotification(body)
 
 
-    print()
+    # print()
 
 def purchaseNotification(order):
     #add to the database

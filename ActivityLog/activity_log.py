@@ -3,6 +3,11 @@ import amqp_connection
 import json
 import pika
 from os import environ
+from dotenv import load_dotenv
+import os
+
+# Manually load the .env file
+load_dotenv()
 
 a_queue_name = environ.get('A_QUEUE_NAME') #Activity_Log
 
@@ -23,14 +28,15 @@ def receiveLog(channel):
 
 def callback(channel, method, properties, body): # required signature for the callback; no return
     print("\nactivity_log: Received an order log by " + __file__)
-    processLog(json.loads(body))
-    print()
+    # print(body)
+    # processLog(json.loads(body))
+    processLog(body)
 
 def processLog(order):
     #add to the database
 
 
-
+    print(order)
     print("activity_log: Order log recorded successfully")
 
 if __name__ == "__main__":  # execute this program only if it is run as a script (not by 'import')
