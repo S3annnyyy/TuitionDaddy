@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
 import { slideInFromBottom } from '../utils/motion' 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getAllResources, getResourcesByLevel } from '../utils/mktplaceFunctions'
+import { DocumentPlusIcon } from "@heroicons/react/24/outline"
 
 const selection = [
   { name: "ALL", status: true },
@@ -36,6 +37,7 @@ const Marketplace = () => {
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
   const [primaryData, setPrimaryData] = useState<any[]>([]);
   const [noData, setNoData] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCategory("all")
@@ -69,7 +71,16 @@ const Marketplace = () => {
           setNoData(true)         
       });
     }
-  };  
+  };
+  
+  const handleUploadResource = () => {
+    // check if user is logged in direct to url, else notify user to login
+    if (sessionStorage.getItem('username')) {
+      navigate('/marketplace/user/uploadresource');
+    } else {
+      alert("Please login to upload resource 😊")
+    }      
+  }
 
   return (
     <motion.div 
@@ -80,11 +91,16 @@ const Marketplace = () => {
     >
       {/* Selection bar   */}
       <section className='flex flex-row justify-center my-5'>
+        <div className='flex flex-row justify-center'>
           {selection.map((level, index) => {
             return (
               <button key={index} className={`mx-4 text-sm cursor-pointer ${level.status === true ? 'btn-active' : ''}`} onClick={() => handleCategorySelection(level.name, index)}>{level.name}</button>
             )
-          })}
+          })}         
+          <motion.button className="text-bold cursor-pointer bg-green-400 btn-active flex items-center" onClick={handleUploadResource} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            Upload resource <DocumentPlusIcon className='h-5 w-5 inline align-middle'/>           
+          </motion.button>                  
+        </div>          
       </section>
 
       {/* Content portion */}
