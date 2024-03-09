@@ -1,2 +1,5 @@
 Auth/.env
 go.work.sum
+Tutor/bin
+Tutor/obj
+Tutor/appsettings.json
