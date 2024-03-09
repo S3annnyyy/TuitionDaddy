@@ -53,7 +53,7 @@ export const getUserInfo = async (setUserInfo: any) => {
 }
 
 export const uploadResource = async (ID:string, username:string, price:number, resource:File, thumbnail:File, desc:string, level:string) => {
-    const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/upload`
+    const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/user/upload`
     const formData = new FormData();
     formData.append("resource", resource);
     formData.append("thumbnail", thumbnail);
