@@ -174,6 +174,7 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE_1MTH, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"username": user.Username, // Include the username in the response
+		"token":    tokenString,
 	})
 }
 

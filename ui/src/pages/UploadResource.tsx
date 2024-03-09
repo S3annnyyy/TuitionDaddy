@@ -4,25 +4,43 @@ import { slideInFromTop } from '../utils/motion';
 import { HomeIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
+import { UserInfoType } from '../utils/types';
+import { getUserInfo, uploadResource } from '../utils/mktplaceFunctions';
 
 const UploadResource = () => {
     const [userID, setUserID] = useState<string>('');    
-    const [username, setUsername] = useState<string>('');    
-    const [educationLevel, setEducationLevel] = useState<string>('Select level');    
+    const [username, setUsername] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
     const [thumbnail, setThumbnail] = useState<File | undefined>();
-    const [resource, setResource] = useState<File | undefined>();
+    const [resource, setResource] = useState<File | undefined>();    
+    const [educationLevel, setEducationLevel] = useState<string>('Select level'); 
+    const [price, setPrice] = useState<number>(0)
+    const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const navigate = useNavigate();
 
     useEffect(() => {
-        const username = sessionStorage.getItem('username');
-        if (username) {
-            setUsername(username);
-        }        
-    }, [])
+        getUserInfo(setUserInfo)                  
+    }, [])   
     
+    useEffect(() => {
+        if (userInfo) {
+            setUserID(userInfo.ID.toString())
+            setUsername(userInfo.Username)
+        }
+    }, [userInfo]) 
+
     const onFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();        
+        e.preventDefault();
+        console.log(userID, username, description, thumbnail, resource, educationLevel, price)
+        const result = await uploadResource(userID, username, price, resource!, thumbnail!, description, educationLevel) 
+        if (result) {
+            alert("Resource uploaded!")
+            navigate("/marketplace")
+        } else {
+            alert("There was an error uploading resource")
+        }       
     };
+    
         
   return (
     <section className="bg-gray-50 dark:bg-gray-900 w-screen h-screen align-middle">
@@ -54,12 +72,12 @@ const UploadResource = () => {
 
                             <div className='sm:col-span-3'>
                                 <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900">Price</label>
-                                <input type="number" id="price" className="login-form-component" placeholder="2.00" min="0" step={0.01}required />
+                                <input type="number" id="price" className="login-form-component" placeholder="2.00" min="0" step={0.01} onChange={e => setPrice(parseFloat(e.target.value))} required />
                             </div>                             
 
                             <div className='sm:col-span-6'>
                                 <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900">Resource description</label>
-                                <input type="description" name="description" id="description" className="login-form-component" placeholder="level-subject-syllabus-topic-week"  required />
+                                <input type="description" name="description" id="description" className="login-form-component" placeholder="level-subject-syllabus-topic-week" onChange={e => setDescription(e.target.value)} required />
                             </div>                            
 
                             <div className='sm:col-span-3'>
