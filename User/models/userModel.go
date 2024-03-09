@@ -16,11 +16,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Email          string `gorm:"unique"`
-	Password       string
-	Username       string
-	Organisation   string
-	Role           string
-	EducationLevel string
-	Transcript     string
+	Email           string `gorm:"unique"`
+	Password        string
+	Username        string
+	Organisation    string
+	Role            string
+	EducationLevel  string
+	Transcript      string
+	StripeAccountID string
 }
