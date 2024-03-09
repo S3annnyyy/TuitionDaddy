@@ -194,3 +194,13 @@ func RetrieveTranscript(c *gin.Context) {
 		"response": userTranscriptUrl,
 	})
 }
+
+func RetrieveUserInfo(c *gin.Context) {
+	user, _ := c.Get("user")
+	userInfo := user.(models.User)
+
+	c.JSON(http.StatusOK, gin.H{
+		"response": userInfo,
+	})
+
+}
