@@ -187,7 +187,14 @@ func Validate(c *gin.Context) {
 }
 
 func RetrieveTranscript(c *gin.Context) {
-	user, _ := c.Get("user")
+	user, userExists := c.Get("user")
+	if !userExists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve user details",
+		})
+		return
+	}
+
 	userTranscriptUrl := user.(models.User).Transcript
 
 	c.JSON(http.StatusOK, gin.H{
@@ -196,11 +203,24 @@ func RetrieveTranscript(c *gin.Context) {
 }
 
 func RetrieveUserInfo(c *gin.Context) {
-	user, _ := c.Get("user")
-	userInfo := user.(models.User)
+	user, userExists := c.Get("user")
+
+	if !userExists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve user details",
+		})
+		return
+	}
+
+	userInfo, ok := user.(models.User)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to parse user information",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"response": userInfo,
 	})
-
 }
