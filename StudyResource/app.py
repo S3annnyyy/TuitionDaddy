@@ -47,7 +47,7 @@ def get_study_resource(resourceID):
         return jsonResponse(500, data={"resourceID":resourceID}, message="An error occurred while getting resourceID. "+str(e))
             
     
-@app.route("/studyresource/upload", methods=['POST'])
+@app.route("/studyresources/upload", methods=['POST'])
 def upload_study_resource():
     try:
         resource = request.files["resource"]
