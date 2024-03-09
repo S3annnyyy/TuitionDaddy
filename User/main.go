@@ -20,6 +20,7 @@ func corsMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(204)
@@ -44,6 +45,7 @@ func main() {
 	r.POST("/signup", controllers.Signup)
 	r.POST("/login", controllers.Login)
 	r.GET("/retrieveUrl", middleware.RequireAuth, controllers.RetrieveTranscript)
+	r.GET("/userinfo", middleware.RequireAuth, controllers.RetrieveUserInfo)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 
 	r.Run() // listen and serve on 0.0.0.0:3000

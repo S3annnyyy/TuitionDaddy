@@ -174,6 +174,7 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, EXPIRATION_DATE_1MTH, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"username": user.Username, // Include the username in the response
+		"token":    tokenString,
 	})
 }
 
@@ -187,10 +188,40 @@ func Validate(c *gin.Context) {
 }
 
 func RetrieveTranscript(c *gin.Context) {
-	user, _ := c.Get("user")
+	user, userExists := c.Get("user")
+	if !userExists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve user details",
+		})
+		return
+	}
+
 	userTranscriptUrl := user.(models.User).Transcript
 
 	c.JSON(http.StatusOK, gin.H{
 		"response": userTranscriptUrl,
+	})
+}
+
+func RetrieveUserInfo(c *gin.Context) {
+	user, userExists := c.Get("user")
+
+	if !userExists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Could not retrieve user details",
+		})
+		return
+	}
+
+	userInfo, ok := user.(models.User)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to parse user information",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"response": userInfo,
 	})
 }
