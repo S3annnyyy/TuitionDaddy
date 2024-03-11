@@ -47,6 +47,7 @@ func main() {
 	r.GET("/retrieveUrl", middleware.RequireAuth, controllers.RetrieveTranscript)
 	r.GET("/userinfo", middleware.RequireAuth, controllers.RetrieveUserInfo)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
+	r.GET("/user/paymentdetails", controllers.RetrieveUserPaymentDetails)
 
 	r.Run() // listen and serve on 0.0.0.0:3000
 }
