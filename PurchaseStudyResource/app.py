@@ -15,7 +15,7 @@ def jsonResponse(rescode, **kwargs):
     return jsonify(res_data), rescode
 
 studyresourceURL = "http://localhost:8000/studyresources"
-userURL = "http://localhost:3000/userinfo"
+userURL = "http://localhost:3000/user/paymentdetails"
 
 @app.route("/purchasestudyresource", methods=['POST'])
 def purchase_study_resource():
@@ -43,7 +43,7 @@ def processResourcePurchase(resourceID: int, sellerID: int, buyerID: int, buyerT
     print(resourceID, buyerID, sellerID, buyerPaymentDetails)
 
     print("\n --------INVOKING user microservice--------")
-    user_result = invoke_http(userURL, method="GET", cookies={'Authorization': buyerToken})    
+    user_result = invoke_http(userURL, method="GET", cookies={'Authorization': buyerToken}, json={"UserID": sellerID})    
     print(user_result)
 
     print("\n --------INVOKING payment microservice--------")
