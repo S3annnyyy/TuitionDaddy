@@ -3,37 +3,37 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Tutor.Models
 {
-    public class Profile
+    public class TutorProfile
     {
         [Key]
-        public Guid TutorId { get; set; }
-        public string Description { get; set; }
-        public string Experience { get; set; }
-        public List<string> SubjectLevel { get; set; }
+        public int TutorId { get; set; }
+        public required string Description { get; set; }
+        public required string Experience { get; set; }
+        public List<string>? SubjectLevel { get; set; }
     }
 
-    public class Price
+    public class TutorPrice
     {
         [Key]
-        public Guid TutorId { get; set; }
-        public string SubjectLevel { get; set; }
+        public int TutorId { get; set; }
+        public required string SubjectLevel { get; set; }
         public int Price { get; set; }
     }
 
-    public class Slot
+    public class TutorSlot
     {
         [Key]
         public Guid SlotId { get; set; }
-        public Guid TutorId { get; set; }
-        public List<int> Students { get; set; }
+        public int TutorId { get; set; }
+        public List<int>? Students { get; set; }
         public int StreamingID { get; set; }
     }
 
-    public class Feedback
+    public class TutorFeedback
     {
         [Key]
-        public Guid UserId { get; set; }
-        public List<string> Feedback { get; set; }
+        public int UserId { get; set; }
+        public List<string>? Feedback { get; set; }
     }
 
 }

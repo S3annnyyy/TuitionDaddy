@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Mvc.Controller;
+using Tutor.Models;
+using Tutor.Services;
 
 namespace Tutor.Controllers
 {
@@ -8,23 +9,21 @@ namespace Tutor.Controllers
     public class TutorController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly DBContext _context;
-        private readonly IProfileService _profileService;
-        private readonly ISlotService _slotService;
-        private readonly IFeedbackService _feedbackService;
+        private readonly ProfileService _profileService;
+        private readonly SlotService _slotService;
+        private readonly FeedbackService _feedbackService;
 
 
-        public TutorController(IConfiguration configuration, DBContext context, ProfileService profileService, SlotService slotService, FeedbackService feedbackService)
+        public TutorController(IConfiguration configuration, ProfileService profileService, SlotService slotService, FeedbackService feedbackService)
         {
             _configuration = configuration;
-            _context = context;
             _profileService = profileService;
             _slotService = slotService;
             _feedbackService = feedbackService;
         }
 
         [HttpPost("{TutorId}")]
-        public async Task<IActionResult> CreateTutorProfile(Profile profile)
+        public async Task<IActionResult> CreateTutorProfile(TutorProfile profile)
         {
             try
             {
@@ -38,7 +37,7 @@ namespace Tutor.Controllers
         }
 
         [HttpPut("{TutorId}")]
-        public async Task<IActionResult> UpdateTutorProfile(Profile profile)
+        public async Task<IActionResult> UpdateTutorProfile(TutorProfile profile)
         {
             try
             {
@@ -94,7 +93,7 @@ namespace Tutor.Controllers
         }
 
         [HttpPost("bookings")]
-        public async Task<IActionResult> BookTutorSlot(int tutorId, Slot slot)
+        public async Task<IActionResult> BookTutorSlot(int tutorId, TutorSlot slot)
         {
             try
             {
@@ -108,7 +107,7 @@ namespace Tutor.Controllers
         }
 
         [HttpPut("bookings/{SlotId}")]
-        public async Task<IActionResult> UpdateTutorSlot(int slotId, Slot slot)
+        public async Task<IActionResult> UpdateTutorSlot(int slotId, TutorSlot slot)
         {
             try
             {
@@ -150,7 +149,7 @@ namespace Tutor.Controllers
         }
 
         [HttpPost("feedbacks/{UserId}")]
-        public async Task<IActionResult> CreateFeedback(int userId, Feedback feedback)
+        public async Task<IActionResult> CreateFeedback(int userId, TutorFeedback feedback)
         {
             try
             {

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +18,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-var Configuration = builder.Configuration;
-builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+// var Configuration = builder.Configuration;
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
