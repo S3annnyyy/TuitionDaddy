@@ -137,3 +137,21 @@ export function addToCart(rData:resourceDataType) {
     }
 }
 
+export function removeItemFromCart(resourceID: string) {
+    const storageKey = "cart";
+    const storedCartItems = sessionStorage.getItem(storageKey);
+  
+    if (storedCartItems) {
+      let cartItems: any[] = JSON.parse(storedCartItems);
+      cartItems = cartItems.filter((item) => item.resourceID !== resourceID);
+      alert(`Item removed from cart`)
+      sessionStorage.setItem(storageKey, JSON.stringify(cartItems));
+
+      // update cartCount
+      const cartCount = sessionStorage.getItem("cartCount");
+      if (cartCount !== null) {
+        const count = parseInt(cartCount, 10);
+        sessionStorage.setItem("cartCount", (count - 1).toString());
+      }      
+    }
+}
