@@ -14,7 +14,19 @@ export const handleLogin = async (email: string, password: string): Promise<bool
     console.log(response)
 
     // store username in sessionstorage
-    sessionStorage.setItem("username", response.data.username)    
+    sessionStorage.setItem("username", response.data.username)
+    sessionStorage.setItem("token", response.data.token)   
+    const token = response.data.token;
+
+    // Set cookie expiration date (optional)
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 30); // Cookie will expire in 30 days
+
+    // Construct cookie string
+    const cookieString = `Authorization=${token}; expires=${expires.toUTCString()}; path=/`;
+
+    // Set the cookie
+    document.cookie = cookieString; 
     return true
   } catch (error: unknown) {
     console.log(`handleLogin catch error: ${error}`)
