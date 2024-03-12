@@ -1,0 +1,103 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/payment": {
+            "post": {
+                "description": "Make a card Payment in Stripe",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Card Payment",
+                "parameters": [
+                    {
+                        "description": "Parameters",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful response.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to read body.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to save payment information.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.PaymentBody": {
+            "type": "object",
+            "required": [
+                "Description",
+                "PaymentMethodID",
+                "Price",
+                "SellerID",
+                "StripeAccountID",
+                "UserID"
+            ],
+            "properties": {
+                "Description": {
+                    "type": "string"
+                },
+                "PaymentMethodID": {
+                    "type": "string"
+                },
+                "Price": {
+                    "type": "number"
+                },
+                "SellerID": {
+                    "type": "string"
+                },
+                "StripeAccountID": {
+                    "type": "string"
+                },
+                "UserID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentResponse": {
+            "type": "object",
+            "properties": {
+                "PaymentIntentID": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
