@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { resourceDataType } from './types';
 
 export const getAllResources = async (setPrimaryData:any, setNoData:any) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/all`
@@ -78,3 +79,50 @@ export const uploadResource = async (ID:string, username:string, price:number, r
         return false
     } 
 }
+
+export function getCartCount(setCount: React.Dispatch<React.SetStateAction<number>>) {
+    const cartCount = sessionStorage.getItem("cartCount");
+    
+    if (cartCount !== null) {
+      setCount(parseInt(cartCount, 10));
+    } else {
+      setCount(0);
+    }
+  }
+
+  export function addToCart(rData:resourceDataType) {
+    console.log(`Added to cart: ${rData.resourceID}`)
+    const storageKey = "cart";
+
+    const existingData = sessionStorage.getItem(storageKey);
+
+    if (existingData) {
+        // If data exists, parse it as an array of Resource objects
+        const resourceArray: resourceDataType[] = JSON.parse(existingData);
+
+        // Append the new resource object to the array
+        resourceArray.push(rData);
+
+        // Store the updated array back in sessionStorage
+        sessionStorage.setItem(storageKey, JSON.stringify(resourceArray));       
+    } else {
+        // If no data exists, create a new array with the resource object
+        const newResourceArray: resourceDataType[] = [rData];
+
+        // Store the new array in sessionStorage
+        sessionStorage.setItem(storageKey, JSON.stringify(newResourceArray));
+    }
+
+    const cartCountKey = "cartCount";
+    const cartCount = sessionStorage.getItem(cartCountKey);
+
+    if (cartCount !== null) {
+        // If cartCount exists, parse it as a number and increment by one
+        const count = parseInt(cartCount, 10);
+        sessionStorage.setItem(cartCountKey, (count + 1).toString());
+    } else {
+        // If cartCount doesn't exist, initialize it to 1
+        sessionStorage.setItem(cartCountKey, "1");
+    }
+  }
+
