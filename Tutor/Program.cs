@@ -1,4 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Tutor.Context;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +19,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-// var Configuration = builder.Configuration;
-// builder.Services.AddDbContext<AppDbContext>(options =>
-//         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+// builder.Services.AddDbContext<DBContext>(options =>
+//     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+// );
 
 var app = builder.Build();
 
