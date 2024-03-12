@@ -1,0 +1,67 @@
+definitions:
+  models.PaymentBody:
+    properties:
+      Description:
+        type: string
+      PaymentMethodID:
+        type: string
+      Price:
+        type: number
+      SellerID:
+        type: string
+      StripeAccountID:
+        type: string
+      UserID:
+        type: string
+    required:
+    - Description
+    - PaymentMethodID
+    - Price
+    - SellerID
+    - StripeAccountID
+    - UserID
+    type: object
+  models.PaymentError:
+    properties:
+      error:
+        type: string
+    type: object
+  models.PaymentResponse:
+    properties:
+      PaymentIntentID:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /payment:
+    post:
+      consumes:
+      - application/json
+      description: Make a card Payment in Stripe
+      parameters:
+      - description: Parameters
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/models.PaymentBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/models.PaymentResponse'
+        "400":
+          description: Failed to read body.
+          schema:
+            $ref: '#/definitions/models.PaymentError'
+        "500":
+          description: Failed to save payment information.
+          schema:
+            $ref: '#/definitions/models.PaymentError'
+      summary: Card Payment
+      tags:
+      - Payment
+swagger: "2.0"
