@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getResourceByID, addToCart } from '../utils/mktplaceFunctions'
 import { slideInFromBottom } from '../utils/motion'
+import { Link } from 'react-router-dom'
 
 const Product = () => {
   const { itemID } = useParams();
@@ -41,14 +42,18 @@ const Product = () => {
                   >
                   Purchase                   
               </motion.button>
-              <motion.button 
-                    className="max-w-72 rounded-full border-solid border-2 border-gray-800 py-2 hover:outline outline-offset-2 hover:outline-primary"                  
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => addToCart(resourceData)}
-                  >
-                  Add to Cart                    
-              </motion.button>
+              <Link to="/marketplace">
+                <motion.button
+                  className="w-72 rounded-full border-solid border-2 border-gray-800 py-2 hover:outline outline-offset-2 hover:outline-primary"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => addToCart(resourceData)}
+                >
+                  Add to Cart
+                </motion.button>
+              </Link>
+              
+              
             </div> 
           </div>                          
         <section>
