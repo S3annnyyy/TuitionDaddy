@@ -90,7 +90,7 @@ export function getCartCount(setCount: React.Dispatch<React.SetStateAction<numbe
     }
   }
 
-  export function addToCart(rData:resourceDataType) {
+export function addToCart(rData:resourceDataType) {
     console.log(`Added to cart: ${rData.resourceID}`)
     const storageKey = "cart";
 
@@ -100,17 +100,28 @@ export function getCartCount(setCount: React.Dispatch<React.SetStateAction<numbe
         // If data exists, parse it as an array of Resource objects
         const resourceArray: resourceDataType[] = JSON.parse(existingData);
 
+        // Check if rData already exists in the array
+        const isDuplicate = resourceArray.some((item) => item.resourceID === rData.resourceID);
+
+        if (isDuplicate) {
+            // If rData already exists, display an alert and return
+            alert("This item is already in the cart!");
+        return;
+        }
+
         // Append the new resource object to the array
         resourceArray.push(rData);
 
         // Store the updated array back in sessionStorage
-        sessionStorage.setItem(storageKey, JSON.stringify(resourceArray));       
+        sessionStorage.setItem(storageKey, JSON.stringify(resourceArray));
+        alert(`${rData.resourceName} added to cart!`)       
     } else {
         // If no data exists, create a new array with the resource object
         const newResourceArray: resourceDataType[] = [rData];
 
         // Store the new array in sessionStorage
         sessionStorage.setItem(storageKey, JSON.stringify(newResourceArray));
+        alert(`${rData.resourceName} added to cart!`) 
     }
 
     const cartCountKey = "cartCount";
@@ -124,5 +135,5 @@ export function getCartCount(setCount: React.Dispatch<React.SetStateAction<numbe
         // If cartCount doesn't exist, initialize it to 1
         sessionStorage.setItem(cartCountKey, "1");
     }
-  }
+}
 
