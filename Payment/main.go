@@ -46,6 +46,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/"
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.POST("/payment", controllers.Payment)
+	r.PATCH("/refund/:payment_intent_id", controllers.Refund)
 
 	r.Run(":8080")
 }

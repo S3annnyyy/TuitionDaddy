@@ -60,6 +60,56 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/refund/{payment_intent_id}": {
+            "patch": {
+                "description": "Refunds a payment made through Stripe",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Refund Payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment Intent ID",
+                        "name": "payment_intent_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Refund processed and recorded successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/models.RefundResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Payment has already been refunded.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentError"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment record not found.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentError"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update payment record as refunded.",
+                        "schema": {
+                            "$ref": "#/definitions/models.PaymentError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -106,6 +156,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "PaymentIntentID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RefundResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }
