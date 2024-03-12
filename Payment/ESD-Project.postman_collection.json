@@ -1,0 +1,56 @@
+{
+	"info": {
+		"_postman_id": "97ff34f9-b81d-46d8-a233-93856ffb6d1b",
+		"name": "ESD-Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16802278"
+	},
+	"item": [
+		{
+			"name": "Card payment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Price\": 10,\r\n    \"Description\": \"Some payment for a product\",\r\n    \"UserID\": \"1\" ,\r\n    \"SellerID\": \"2\",\r\n    \"StripeAccountID\": \"<LINKED_ACCOUNT_ID>\",\r\n    \"PaymentMethodID\": \"<PAYMENT_METHOD_ID>\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/payment",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"payment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refund Payment",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/refund/<PAYMENT_METHOD_ID>",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"refund",
+						"<PAYMENT_METHOD_ID>"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

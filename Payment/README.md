@@ -74,6 +74,7 @@ swag init
 # Paste swagger.yaml content to https://swagger-markdown-ui.netlify.app/
 ```
 
+## Controller Method Routes
 ### /payment
 
 #### POST
@@ -101,6 +102,32 @@ Note: For PaymentMethodID value you must retrieve first to the Stripe api before
 | 400 | Failed to read body. | [models.PaymentError](#models.PaymentError) |
 | 500 | Failed to save payment information. | [models.PaymentError](#models.PaymentError) |
 
+### /refund/{payment_intent_id}
+
+#### PATCH
+##### Summary:
+
+Refund Payment
+
+##### Description:
+
+Refunds a payment made through Stripe
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| payment_intent_id | path | Payment Intent ID | Yes | string |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Refund processed and recorded successfully. | [models.RefundResponse](#models.RefundResponse) |
+| 400 | Payment has already been refunded. | [models.PaymentError](#models.PaymentError) |
+| 404 | Payment record not found. | [models.PaymentError](#models.PaymentError) |
+| 500 | Failed to update payment record as refunded. | [models.PaymentError](#models.PaymentError) |
+
 ### Models
 
 
@@ -126,3 +153,9 @@ Note: For PaymentMethodID value you must retrieve first to the Stripe api before
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | PaymentIntentID | string |  | No |
+
+#### models.RefundResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| message | string |  | No |

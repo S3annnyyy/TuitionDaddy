@@ -25,12 +25,17 @@ type Payment struct {
 	PaymentMethod   string    `json:"PaymentMethod"`
 	PaymentIntentID string    `json:"PaymentIntentID"`
 	StripeAccountID string    `json:"StripeAccountID"`
+	Refund          bool      `json:"Refund default:false"`
 	CreatedAt       time.Time `json:"CreatedAt"`
 	UpdatedAt       time.Time `json:"UpdatedAt"`
 }
 
 type PaymentResponse struct {
 	PaymentIntentID string `json:"PaymentIntentID"`
+}
+
+type RefundResponse struct {
+	Message string `json:"message"`
 }
 
 type PaymentError struct {

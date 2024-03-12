@@ -31,6 +31,11 @@ definitions:
       PaymentIntentID:
         type: string
     type: object
+  models.RefundResponse:
+    properties:
+      message:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -62,6 +67,39 @@ paths:
           schema:
             $ref: '#/definitions/models.PaymentError'
       summary: Card Payment
+      tags:
+      - Payment
+  /refund/{payment_intent_id}:
+    patch:
+      consumes:
+      - application/json
+      description: Refunds a payment made through Stripe
+      parameters:
+      - description: Payment Intent ID
+        in: path
+        name: payment_intent_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Refund processed and recorded successfully.
+          schema:
+            $ref: '#/definitions/models.RefundResponse'
+        "400":
+          description: Payment has already been refunded.
+          schema:
+            $ref: '#/definitions/models.PaymentError'
+        "404":
+          description: Payment record not found.
+          schema:
+            $ref: '#/definitions/models.PaymentError'
+        "500":
+          description: Failed to update payment record as refunded.
+          schema:
+            $ref: '#/definitions/models.PaymentError'
+      summary: Refund Payment
       tags:
       - Payment
 swagger: "2.0"
