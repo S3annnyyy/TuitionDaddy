@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { getResourceByID } from '../utils/mktplaceFunctions'
+import { getResourceByID, addToCart } from '../utils/mktplaceFunctions'
 import { slideInFromBottom } from '../utils/motion'
 
 const Product = () => {
@@ -45,6 +45,7 @@ const Product = () => {
                     className="max-w-72 rounded-full border-solid border-2 border-gray-800 py-2 hover:outline outline-offset-2 hover:outline-primary"                  
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
+                    onClick={() => addToCart(resourceData)}
                   >
                   Add to Cart                    
               </motion.button>

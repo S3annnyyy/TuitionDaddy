@@ -2,8 +2,9 @@ import { motion } from 'framer-motion'
 import { slideInFromBottom } from '../utils/motion' 
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getAllResources, getResourcesByLevel } from '../utils/mktplaceFunctions'
+import { getAllResources, getResourcesByLevel, getCartCount } from '../utils/mktplaceFunctions'
 import { DocumentPlusIcon } from "@heroicons/react/24/outline"
+import { ShoppingBagIcon } from "@heroicons/react/24/solid"
 
 const selection = [
   { name: "ALL", status: true },
@@ -19,7 +20,7 @@ const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number, i
   const {imgSrc, itemName, itemPrice, itemID} = props
   return (
     <Link to={`/marketplace/${itemID}`}>
-      <div className="sm:col-span-1 rounded shadow-lg">
+      <div className="sm:col-span-1 rounded shadow-lg mb-5">
       <img className="w-full h-full object-cover" src={imgSrc}/>
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">{itemName}</div>
@@ -37,11 +38,13 @@ const Marketplace = () => {
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
   const [primaryData, setPrimaryData] = useState<any[]>([]);
   const [noData, setNoData] = useState<boolean>(true);
+  const [cartCount, setCount] =useState<number>(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     setCategory("all")
-    setActiveBtnIndex(0)    
+    setActiveBtnIndex(0)
+    getCartCount(setCount)    
     getAllResources(setPrimaryData, setNoData)    
   }, []);    
 
@@ -99,8 +102,12 @@ const Marketplace = () => {
           })}         
           <motion.button className="text-bold cursor-pointer bg-green-400 btn-active flex items-center" onClick={handleUploadResource} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             Upload resource <DocumentPlusIcon className='h-5 w-5 inline align-middle'/>           
-          </motion.button>                  
-        </div>          
+          </motion.button>                            
+        </div>
+        <Link to={`/marketplace/user/cart`} className='absolute right-5'>
+          <ShoppingBagIcon className='h-8 w-8 cursor-pointer' />
+          <span className="absolute right-0 top-0 rounded-full bg-red-600 w-4 h-4 top right text-white text-xs text-center">{cartCount}</span>                
+        </Link>          
       </section>
 
       {/* Content portion */}
