@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { resourceDataType } from '../utils/types'
 import { removeItemFromCart } from '../utils/mktplaceFunctions'
 import { TrashIcon } from "@heroicons/react/24/solid"
+import { StripePayment } from '../components/StripePayment'
 
 const Cart = () => {
 
@@ -62,7 +63,7 @@ const Cart = () => {
 
                 {isPaying && 
                 <div>
-                    Hello payment has starrtedd #TODO
+                    <StripePayment />
                 </div>
                 }
             </div>
