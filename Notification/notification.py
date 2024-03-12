@@ -1,60 +1,75 @@
-#!/usr/bin/env python3
-import amqp_connection
+import asyncio
 import json
-import pika
-from os import environ
+import smtplib
+from email.mime.text import MIMEText
+import requests
 from dotenv import load_dotenv
-import os
+import amqp_connection
+import aiohttp
+from os import environ
 
 # Manually load the .env file
 load_dotenv()
 
-n_queue_name = environ.get('N_QUEUE_NAME') #Activity_Log
+# Set the queue name from environment variables
+QUEUE_NAME = environ.get('N_QUEUE_NAME')  # Activity_Log
 
-def receiveNotification(channel):
-    try:
-        # set up a consumer and start to wait for coming messages
-        channel.basic_consume(queue=n_queue_name, on_message_callback=callback, auto_ack=True)
-        print('Notification: Consuming from queue:', n_queue_name)
-        channel.start_consuming()  # an implicit loop waiting to receive messages;
-            #it doesn't exit by default. Use Ctrl+C in the command window to terminate it.
-    
-    except pika.exceptions.AMQPError as e:
-        print(f"Notification: Failed to connect: {e}") # might encounter error if the exchange or the queue is not created
+# Configuration for Telegram Bot
+TELEGRAM_BOT_TOKEN = environ.get('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = environ.get('TELEGRAM_CHAT_ID')
 
-    except KeyboardInterrupt:
-        print("Notification: Program interrupted by user.") 
+# Configuration for Email
+EMAIL_HOST = environ.get('EMAIL_HOST')
+EMAIL_PORT = environ.get('EMAIL_PORT')
+EMAIL_USERNAME = environ.get('EMAIL_USERNAME')
+EMAIL_PASSWORD = environ.get('EMAIL_PASSWORD')
 
+async def send_email(subject, message, recipient):
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = EMAIL_USERNAME
+    msg['To'] = recipient
 
-def callback(channel, method, properties, body): # required signature for the callback; no return
-    print("\nNotification: Received a user to notify by " + __file__)
-
-    purchaseNotification(body)
-
-    bookingNotification(body)
-
-    gptcherNotification(body)
+    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+        server.starttls()
+        server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_USERNAME, recipient, msg.as_string())
 
 
-    # print()
-
-def purchaseNotification(order):
-    #add to the database
-    print("Notification: Purchase notification recorded successfully")
-
-def bookingNotification(order):
-    #add to the database
-    print("Notification: Booking notification recorded successfully")
-
-def gptcherNotification(order):
-    #add to the database
-    print("Notification: GPTcher notification recorded successfully")
+async def send_telegram_message(chat_id, message):
+    url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
+    params = {
+        'chat_id': chat_id,
+        'text': message
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, params=params) as response:
+            return await response.text()
 
 
-if __name__ == "__main__":  # execute this program only if it is run as a script (not by 'import')
-    print("Notification: Getting Connection")
-    connection = amqp_connection.create_connection() #get the connection to the broker
-    print("Notification: Connection established successfully")
-    channel = connection.channel()
-    receiveNotification(channel)
-    connection.close() # close the connection when done
+async def consume_queue():
+    connection = await amqp_connection.create_connection()
+    async with connection:
+        channel = await connection.channel()
+        queue = await channel.declare_queue(QUEUE_NAME, durable=True)
+
+        async for message in queue:
+            async with message.process():
+                data = json.loads(message.body.decode())
+                print("Received message:", data)  # Add this line for debugging
+                
+                # Handle email notification
+                email_subject = "Notification Subject"
+                email_message = f"Notification Message for Email: {data['scheduled_date']}"
+                email_recipient = data['email']
+                await send_email(email_subject, email_message, email_recipient)
+                
+                # Handle Telegram notification
+                telegram_chat_id = data['chat_id']
+                telegram_message = f"Notification Message for Telegram: {data['scheduled_date']}"
+                await send_telegram_message(telegram_chat_id, telegram_message)
+
+
+
+if __name__ == "__main__":
+    asyncio.run(consume_queue())

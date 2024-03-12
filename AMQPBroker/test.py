@@ -38,9 +38,15 @@ message = "error message test"
 channel.basic_publish(exchange=exchangename, routing_key="order.error", 
             body=message, properties=pika.BasicProperties(delivery_mode = 2)) # make the message persistent within the matching queues until it is received by some receiver (the matching queues have to exist and be durable and bound to the exchange)
 
-message = "notification message test"
+message = {
+    "chat_id": "536882053", 
+    "email": "tuitiondaddyesd@gmail.com", 
+    "scheduled_date": "2024-03-09T10:00:00", 
+    "days_before": 3
+}
+message_json = json.dumps(message)
 channel.basic_publish(exchange=exchangename, routing_key="order.notification", 
-            body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+            body=message_json, properties=pika.BasicProperties(delivery_mode = 2)) 
 
     
 # Execute this program if it is run as a main script (not by 'import')
