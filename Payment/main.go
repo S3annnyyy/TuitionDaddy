@@ -7,11 +7,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v76"
+
+	docs "payment/docs"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func init() {
 	initializers.LoadEnvVariables()
 	stripe.Key = os.Getenv("STRIPE_KEY")
+	initializers.ConnectionManager()
+	initializers.SyncDatabase()
 }
 
 // CORS middleware
@@ -36,8 +43,10 @@ func main() {
 	// Enable CORS middleware
 	r.Use(corsMiddleware)
 
+	docs.SwaggerInfo.BasePath = "/"
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.POST("/payment", controllers.Payment)
-	r.POST("/paynow", controllers.PaynowPayment)
+	r.PATCH("/refund/:payment_intent_id", controllers.Refund)
 
-	r.Run()
+	r.Run(":8080")
 }
