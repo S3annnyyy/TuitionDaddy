@@ -12,3 +12,16 @@ export interface UserInfoType {
     Transcript: string;
     StripeAccountID: string;
 }
+
+export interface resourceDataType {
+    resourceDesc: string;
+    resourceID: string;
+    resourceLevel: string;
+    resourceName: string;
+    resourcePrice: number;
+    resourceThumbnailURL: string;
+    resources3URL: string;
+    sellerID: number;
+    sellerName: string;
+    uuid: string;
+}

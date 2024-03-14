@@ -4,6 +4,8 @@ import (
 	"TuitionDaddy/User/initializers"
 	"TuitionDaddy/User/models"
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -223,5 +225,49 @@ func RetrieveUserInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"response": userInfo,
+	})
+}
+
+func RetrieveUserPaymentDetails(c *gin.Context) {
+	// Get UserID off req body
+	var body struct {
+		UserID int
+	}
+
+	// Debugging: Print the raw request body
+	rawBody, err := c.GetRawData()
+	if err != nil {
+		// Handle error
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read request body",
+		})
+		return
+	}
+	fmt.Println("Raw request body:", string(rawBody))
+
+	// Parse JSON data from rawBody into body struct
+	if err := json.Unmarshal(rawBody, &body); err != nil {
+		// Handle JSON parsing error
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to parse request body",
+		})
+		return
+	}
+
+	// Debugging: Print the parsed UserID
+	fmt.Println("Parsed UserID:", body.UserID)
+
+	// Lookup requested user
+	var user models.User
+	initializers.DB.First(&user, "ID = ?", body.UserID)
+	if user.ID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userID",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": user.StripeAccountID,
 	})
 }
