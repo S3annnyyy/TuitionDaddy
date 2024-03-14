@@ -38,13 +38,24 @@ message = "error message test"
 channel.basic_publish(exchange=exchangename, routing_key="order.error", 
             body=message, properties=pika.BasicProperties(delivery_mode = 2)) # make the message persistent within the matching queues until it is received by some receiver (the matching queues have to exist and be durable and bound to the exchange)
 
-message = {
-    "chat_id": "536882053", 
+message_email = {
     "email": "tuitiondaddyesd@gmail.com", 
+    "email_message": "Your payment is successful! Thank you for your order.",
+    "email_subject": "Payment Confirmation",
     "scheduled_date": "2024-03-09T10:00:00", 
-    "days_before": 3
 }
-message_json = json.dumps(message)
+
+message_json = json.dumps(message_email)
+channel.basic_publish(exchange=exchangename, routing_key="order.notification", 
+            body=message_json, properties=pika.BasicProperties(delivery_mode = 2)) 
+
+message_tele = {
+    "chat_id": "536882053", 
+    "scheduled_date": "2024-03-09T10:00:00", 
+    "telegram_message": "Good afternoon kaelan! Wishing you a bright and insightful afternoon! Your intellect shines brightly, illuminating every conversation and idea you engage with. Keep inspiring us with your brilliance and creativity. Have a wonderful day ahead",
+}
+
+message_json = json.dumps(message_tele)
 channel.basic_publish(exchange=exchangename, routing_key="order.notification", 
             body=message_json, properties=pika.BasicProperties(delivery_mode = 2)) 
 

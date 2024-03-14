@@ -13,9 +13,9 @@ print(os.environ)
 
 
 # Instead of hardcoding the values, we can also get them from the environ as shown below
-hostname = environ.get('HOSTNAME') #localhost
+hostname = environ.get('HOSTNAME')
 print(environ.get('HOSTNAME'))
-port = environ.get('PORT')         #5672 
+port = environ.get('PORT')        
 
 exchangename = environ.get('EXCHANGENAME') #order_topic
 exchangetype = environ.get('EXCHANGETYPE') #topic
@@ -92,11 +92,12 @@ def create_error_queue(channel):
     
 def create_notification_queue(channel):
     print('amqp_setup:create_notification_queue')
-    channel.queue_declare(queue=n_queue_name, durable=True) # 'durable' makes the queue survive broker restarts
-    #bind Notification queue
+    # Declare the queue with the dead-letter exchange argument
+    channel.queue_declare(queue=n_queue_name, durable=True, arguments={
+        'x-dead-letter-exchange': 'dlx'  # Replace 'your_dlx_name' with your actual dead-letter exchange name
+    })
+    # Bind the queue to the exchange
     channel.queue_bind(exchange=exchangename, queue=n_queue_name, routing_key='*.notification')
-        # bind the queue to the exchange via the key
-        # any routing_key with two words and ending with '.notification' will be matched
 
 
 

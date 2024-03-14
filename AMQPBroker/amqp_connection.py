@@ -7,8 +7,8 @@ import os
 # Manually load the .env file
 load_dotenv()
 # Instead of hardcoding the values, we can also get them from the environ as shown below
-hostname = environ.get('HOSTNAME') #localhost
-port = environ.get('PORT')         #5672 
+hostname = environ.get('HOSTNAME') 
+port = environ.get('PORT')
 
 
 # function to create a connection to the broker

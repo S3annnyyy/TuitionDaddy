@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Set the RabbitMQ connection parameters for localhost
-RABBITMQ_HOST = environ.get('HOSTNAME')  # localhost
-RABBITMQ_PORT = int(environ.get('PORT'))  # 5672
-RABBITMQ_USERNAME = environ.get('RABBITMQ_USERNAME')  # guest
-RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD')  # guest
+RABBITMQ_HOST = environ.get('HOSTNAME')  
+RABBITMQ_PORT = int(environ.get('PORT')) 
+RABBITMQ_USERNAME = environ.get('RABBITMQ_USERNAME')
+RABBITMQ_PASSWORD = environ.get('RABBITMQ_PASSWORD')
 
 async def create_connection(max_retries=12, retry_interval=5):
     print('amqp_connection: Create_connection')
