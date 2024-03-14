@@ -1,5 +1,4 @@
 import express from "express";
-import QuizControllers from "../../controllers/quizcontroller/index.js";
 import multer from "multer";
 import PdfStorage from './pdfStorage.js';
 

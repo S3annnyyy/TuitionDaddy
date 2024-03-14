@@ -1,11 +1,10 @@
 import express from 'express'; 
 import multer from 'multer'; 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { Pool } from 'pg';
 
 // access files in memory through req.file.buffer
-
 function PdfStorage() { 
 
     const app = express(); 
@@ -44,7 +43,7 @@ function PdfStorage() {
             return res.status(400).send('Only PDF files are allowed.');
         }
 
-        const fileName = `${uuidv4()}-${file.originalname}`; 
+        const fileName = `${uuid()}-${file.originalname}`; 
         const encodeFileName = encodeURIComponent(fileName); 
 
         // Prepare to upload to S3 
