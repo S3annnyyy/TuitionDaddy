@@ -12,7 +12,6 @@ const client = new S3Client({
 
 //clean console.logs()
 
-//upload pdf
 function setupRoutes(app) {
 
     //used to update upload.single('pdf')
@@ -23,8 +22,6 @@ function setupRoutes(app) {
         { name: 'question_type', maxCount: 1}    
     ]);
 
-    //ask gpt how to have a route that can take in multiple inputs for multi-part data form with files too
-    //replaces upload.single
     app.post('/pdf', uploadPdfAndForm, async (req, res) => {
         try {
             const files = req.files;
@@ -56,16 +53,16 @@ function setupRoutes(app) {
             }); 
 
             await client.send(uploadParams); 
+            const filetype = file.mimetype === 'application/pdf' ? 'PDF' : 'PPTX'
     
             const fileLocation = `https://${bucketName}.s3.amazonaws.com/${encodeFileName}`; 
 
-            const query = 'INSERT INTO pdf_pptx_files(id) VALUES ($1) RETURNING *;';
-            const values = [fileLocation];
+            const query = 'INSERT INTO pdf_pptx_files(id, filetype) VALUES ($1, $2) RETURNING *;';
+            const values = [fileLocation, filetype];
 
             const dbResponse = await db.query(query, values);
-            const filetype = file.mimetype === 'application/pdf' ? 'PDF' : 'PPTX'
 
-            //add code here
+            //add gpt code here
             //get pdf file from s3
             //figure out how to read the file with pdfreader
             //send to chatgpt using langchain(?)
