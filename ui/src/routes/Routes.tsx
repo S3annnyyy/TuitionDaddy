@@ -4,7 +4,11 @@ import Home from '../pages/Home'
 import Marketplace from '../pages/Marketplace'
 import Signup from '../pages/Signup'
 import Product from '../pages/Product'
+import Tutors from '../pages/Tutors'
 import Class from '../pages/Class'
+import Quiz from '../pages/Quiz'
+import UploadResource from '../pages/UploadResource'
+import Cart from '../pages/Cart'
 
 export const router = createBrowserRouter([
     {
@@ -12,10 +16,14 @@ export const router = createBrowserRouter([
         element: <App />,
         children: [
             { path: "", element: <Home /> },
-            { path: "marketplace", element: <Marketplace /> },
-            { path: 'marketplace/:productId', element: <Product /> },
             { path: "signup", element: <Signup /> },
-            { path: "class", element: <Class /> }
+            { path: "marketplace", element: <Marketplace /> },
+            { path: 'marketplace/user/uploadresource', element: <UploadResource />},
+            { path: 'marketplace/user/cart', element: <Cart />},
+            { path: 'marketplace/:itemID', element: <Product /> },            
+            { path: "tutors", element: <Tutors /> },
+            { path: "class", element: <Class /> },
+            { path: "quiz", element: <Quiz /> }
 
         ]
     }

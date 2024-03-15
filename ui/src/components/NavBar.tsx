@@ -5,10 +5,11 @@ import { Link } from 'react-router-dom'
 import Modal from "./LoginModal";
 
 const navigation = [
-  {name: "Home", ref: "/" , active: true},
-  {name: "Marketplace", ref: "/marketplace" , active: false},
-  {name: "Class", ref: "/class" , active: false},
-  {name: "Microservice 3", ref: "/s3" , active: false},
+  { name: "Home", ref: "/", active: true },
+  { name: "Marketplace", ref: "/marketplace", active: false },
+  { name: "Tutors", ref: "/tutors" , active: false },
+  { name: "Class", ref: "/class", active: false },
+  { name: "Quiz", ref: "/quiz", active: false },
 ]
 
 const CustomNavLink = (props: { children: string, href: string }): JSX.Element => {
