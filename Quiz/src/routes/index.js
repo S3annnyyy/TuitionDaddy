@@ -14,20 +14,33 @@ const client = new S3Client({
 
 //upload pdf
 function setupRoutes(app) {
-    //upload pdf files NEED TO EDIT THIS
+
+    //used to update upload.single('pdf')
+    const uploadPdfAndForm = upload.fields([
+        { name: 'pdf_pptx', maxCount: 1},
+        { name: 'num_qns', maxCount: 1},
+        // below is mcq OR short answer
+        { name: 'question_type', maxCount: 1}    
+    ]);
 
     //ask gpt how to have a route that can take in multiple inputs for multi-part data form with files too
     //replaces upload.single
-    app.post('/pdf', upload.single('pdf'), async (req, res) => {
+    app.post('/pdf', uploadPdfAndForm, async (req, res) => {
         try {
-            const file = req.file;
+            const files = req.files;
+            const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
+            const formFields = req.body; //this is the form fields
+
+            //values of the form fields
+            const numQnsValue = formFields.num_qns;
+            const questionTypeValue = formFields.question_type;
 
             if (!file) { 
-                return res.status(400).send('No file uploaded.'); 
+                return res.status(400).send('No files uploaded.'); 
             } 
     
-            if (file.mimetype !== 'application/pdf') {
-                return res.status(400).send('Only PDF files are allowed.');
+            if (file.mimetype !== 'application/pdf' && file.mimetype !== 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+                return res.status(400).send('Only PDF or PPTX files are allowed.');
             }
     
             const fileName = `${uuid()}-${file.originalname}`; 
@@ -46,10 +59,11 @@ function setupRoutes(app) {
     
             const fileLocation = `https://${bucketName}.s3.amazonaws.com/${encodeFileName}`; 
 
-            const query = 'INSERT INTO pdf_files(id) VALUES ($1) RETURNING *;';
+            const query = 'INSERT INTO pdf_pptx_files(id) VALUES ($1) RETURNING *;';
             const values = [fileLocation];
 
             const dbResponse = await db.query(query, values);
+            const filetype = file.mimetype === 'application/pdf' ? 'PDF' : 'PPTX'
 
             //add code here
             //get pdf file from s3
@@ -59,8 +73,12 @@ function setupRoutes(app) {
 
             res.json({
                 error: false,
-                message: 'PDF uploaded successfully and saved to database.',
+                message: `${filetype} uploaded successfully and saved to database.`,
                 url: fileLocation, 
+                formFields: {
+                    numQns: numQnsValue,
+                    questionType: questionTypeValue
+                },
                 //questions: ,
                 dbData: dbResponse,
             });
