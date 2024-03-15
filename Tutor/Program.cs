@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Tutor.Context;
+using Tutor.Controllers;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -18,10 +19,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 
-// builder.Services.AddDbContext<DBContext>(options =>
-//     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
-// );
+builder.Services.AddDbContext<DBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+);
+builder.Services.AddScoped<TutorController>();
 
 var app = builder.Build();
 
