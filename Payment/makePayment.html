@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment tester</title>
+</head>
+
+<body>
+    <h1>This is a test application to test out the payment methods microservice</h1>
+    <label for="price">Price:</label><br/>
+    <input type="number" name="price" min="1" step="any" id="price"><br/>
+    <label for="description">Description:</label><br/>
+    <textarea name="description" id="description" cols="30" rows="10"></textarea><br/>
+    <label for="description">PaymentMethodID (Get from other html):</label><br/>
+    <input type="text" id="paymentMethodID"><br/>
+    <input type="button" value="Make Payment" id="paymentBtn">
+</body>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const paynowBtn = document.getElementById('paynowBtn');
+    const paymentBtn = document.getElementById('paymentBtn');
+    const paymentMethodID = document.getElementById('paymentMethodID');
+    
+    const stripe = Stripe('<YOUR_STRIPE_PUBLISHABLE_KEY>');
+
+    paymentBtn.addEventListener('click', function (event) {
+        const price = document.getElementById('price').value;
+        const description = document.getElementById('description').value;
+
+        fetch('http://localhost:8080/payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                "Price": parseFloat(price),
+                "Description": description,
+                "UserID": "1" ,
+                "SellerID": "2",
+                "StripeAccountID": "<LINKED_ACCOUNT_ID>",
+                "PaymentMethodID": paymentMethodID
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            alert(JSON.stringify(data));
+        })
+        .catch(error => {
+            alert("Error in payment");
+            console.error('Error in :', error);
+        });
+    });
+
+    function handleSuccess(res) {
+        if (res.paymentIntent.status === 'succeeded') {
+            window.location.href = "https://stripe.com";
+        } else {
+            // Handle other statuses
+            alert("Payment failed");
+        }
+    }
+</script>
+
+</html>

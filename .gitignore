@@ -1,5 +1,9 @@
-**/.env
-go.work.sum
 **/__pycache__
 **/*.exe
 **/*.exe~
+Auth/.env
+go.work.sum
+gpt/node_modules
+gpt/files
+**/.env
+go.work.sum
