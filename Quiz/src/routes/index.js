@@ -2,10 +2,20 @@ import multer from "multer";
 import db from "../libs/db.js";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
+import { TextractClient, StartDocumentTextDetectionCommand, GetDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
+
+//LangChain Imports
+import { LLMChain } from "langchain/chains";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { OpenAI } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
+import { PDFLoader } from "langchain/document_loaders/fs/pdf";
+import { z } from "zod";
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage }); 
 const bucketName = process.env.AWS_BUCKET_NAME;
+const textractClient = new TextractClient({ region: process.env.AWS_DEFAULT_REGION });
 const client = new S3Client({ 
     region: process.env.AWS_DEFAULT_REGION, 
 }); 
@@ -13,7 +23,6 @@ const client = new S3Client({
 //clean console.logs()
 
 function setupRoutes(app) {
-
     //used to update upload.single('pdf')
     const uploadPdfAndForm = upload.fields([
         { name: 'pdf_pptx', maxCount: 1},
@@ -67,7 +76,36 @@ function setupRoutes(app) {
             //figure out how to read the file with pdfreader
             //send to chatgpt using langchain(?)
             //once you set qns using chatgpt, add to res.json, which returns qns from chatgpt
+            if (filetype === 'PDF') {
+                //initialize textract
+                const startCommand = new StartDocumentTextDetectionCommand({
+                    DocumentLocation: { S3Object: { Bucket: bucketName, Name: fileName } }
+                });
+                const startResponse = await textractClient.send(startCommand);
+                const jobId = startResponse.JobId;
 
+                try {
+                    const extractedText = await processTextract(jobId);
+                    res.json({
+                        error: false,
+                        message: "PDF processed successfully.",
+                        extractedText: extractedText,
+                        dbData: dbResponse,
+                    });
+                } catch (textractError) {
+                    console.error('Error processing document with Textract:', textractError);
+                    if (!res.headersSent) {
+                        res.status(500).send({
+                            error: true,
+                            message: 'Error processing document with Textract.',
+                        });
+                    }
+                }
+
+                return;
+            }
+
+            //if not PDF, need to edit this
             res.json({
                 error: false,
                 message: `${filetype} uploaded successfully and saved to database.`,
@@ -81,12 +119,48 @@ function setupRoutes(app) {
             });
         } catch(error) {
             console.error('Error uploading file or in database operation:', error); 
-            res.status(500).send({ 
-                error: true, 
-                message: 'Error uploading file.', 
-            }); 
+            if (!res.headersSent) {
+                res.status(500).send({ 
+                    error: true, 
+                    message: 'Error uploading file.', 
+                }); 
+            }
         }
     });
+}
+
+//to initiate process textract
+async function processTextract(jobId) {
+    try {
+        const finalResponse = await waitForTextractJobCompletion(jobId); // Implement polling logic here
+
+        const extractedText = finalResponse.Blocks.filter(block => block.BlockType === 'LINE').map(line => line.Text).join('\n');
+        
+        return extractedText;
+    } catch (error) {
+        console.error('Error processing document with Textract:', error);
+        throw error; // Rethrow or handle as needed
+    }
+}
+
+async function waitForTextractJobCompletion(jobId) {
+    let jobStatus = "IN_PROGRESS";
+    let response;
+
+    while (jobStatus === "IN_PROGRESS") {
+        response = await textractClient.send(new GetDocumentTextDetectionCommand({ JobId: jobId }));
+        jobStatus = response.JobStatus;
+        if (jobStatus === "IN_PROGRESS") {
+            console.log("Job still in progress, waiting...");
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Adjust timing as needed
+        }
+    }
+
+    if (jobStatus === "SUCCEEDED") {
+        return response; // Return the final response for processing
+    } else {
+        throw new Error(`Textract job failed with status: ${jobStatus}`);
+    }
 }
 
 export default {
