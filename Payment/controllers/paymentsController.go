@@ -68,7 +68,7 @@ func Payment(c *gin.Context) {
 		Price:           body.Price,
 		UserID:          body.UserID,
 		SellerID:        body.SellerID,
-		PaymentMethod:   "card",
+		PaymentMethodID: body.PaymentMethodID,
 		StripeAccountID: body.StripeAccountID,
 		PaymentIntentID: pi.ID, // Save the PaymentIntent ID for future reference
 	}
