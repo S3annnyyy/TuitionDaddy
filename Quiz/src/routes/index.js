@@ -1,16 +1,17 @@
 import multer from "multer";
 import db from "../libs/db.js";
+import pdfReader from "../libs/pdfReader.js";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
-import { TextractClient, StartDocumentTextDetectionCommand, GetDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
+import { TextractClient, StartDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
 
 //LangChain Imports
-import { LLMChain } from "langchain/chains";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { OpenAI } from "@langchain/openai";
-import { ChatOpenAI } from "@langchain/openai";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { z } from "zod";
+// import { LLMChain } from "langchain/chains";
+// import { PromptTemplate } from "@langchain/core/prompts";
+// import { OpenAI } from "@langchain/openai";
+// import { ChatOpenAI } from "@langchain/openai";
+// import { PDFLoader } from "langchain/document_loaders/fs/pdf";
+// import { z } from "zod";
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage }); 
@@ -26,8 +27,6 @@ const client = new S3Client({
 //get s3 URL links
 //get by education level --> 
 
-//TO CONVERT PDF TO PPTX
-
 //schema question: , options: , index: , 
 // afterwards try explanation on why it is correct
 
@@ -36,7 +35,6 @@ function setupRoutes(app) {
     const uploadPdfAndForm = upload.fields([
         { name: 'pdf_pptx', maxCount: 1},
         { name: 'num_qns', maxCount: 1},
-        // below is mcq OR short answer
         { name: 'question_type', maxCount: 1}    
     ]);
 
@@ -44,7 +42,7 @@ function setupRoutes(app) {
         try {
             const files = req.files;
             const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
-            const formFields = req.body; //this is the form fields
+            const formFields = req.body;
 
             //values of the form fields
             const numQnsValue = formFields.num_qns;
@@ -61,7 +59,6 @@ function setupRoutes(app) {
             const fileName = `${uuid()}-${file.originalname}`; 
             const encodeFileName = encodeURIComponent(fileName); 
     
-            // Prepare to upload to S3 
             const uploadParams = new PutObjectCommand({ 
                 Bucket: bucketName, 
                 Body: file.buffer, 
@@ -71,7 +68,7 @@ function setupRoutes(app) {
             }); 
 
             await client.send(uploadParams); 
-            const filetype = file.mimetype === 'application/pdf' ? 'PDF' : 'PPTX'
+            const filetype = file.mimetype === 'application/pdf' ? 'PDF' : 'PPTX';
     
             const fileLocation = `https://${bucketName}.s3.amazonaws.com/${encodeFileName}`; 
 
@@ -94,7 +91,7 @@ function setupRoutes(app) {
                 const jobId = startResponse.JobId;
 
                 try {
-                    const extractedText = await processTextract(jobId);
+                    const extractedText = await pdfReader.processTextract(jobId);
                     res.json({
                         error: false,
                         message: "PDF processed successfully.",
@@ -114,7 +111,6 @@ function setupRoutes(app) {
                 return;
             }
 
-            //if not PDF, need to edit this
             res.json({
                 error: false,
                 message: `${filetype} uploaded successfully and saved to database.`,
@@ -126,6 +122,7 @@ function setupRoutes(app) {
                 //questions: ,
                 dbData: dbResponse,
             });
+            
         } catch(error) {
             console.error('Error uploading file or in database operation:', error); 
             if (!res.headersSent) {
@@ -136,40 +133,6 @@ function setupRoutes(app) {
             }
         }
     });
-}
-
-//to initiate process textract
-async function processTextract(jobId) {
-    try {
-        const finalResponse = await waitForTextractJobCompletion(jobId); // Implement polling logic here
-
-        const extractedText = finalResponse.Blocks.filter(block => block.BlockType === 'LINE').map(line => line.Text).join('\n');
-        
-        return extractedText;
-    } catch (error) {
-        console.error('Error processing document with Textract:', error);
-        throw error; // Rethrow or handle as needed
-    }
-}
-
-async function waitForTextractJobCompletion(jobId) {
-    let jobStatus = "IN_PROGRESS";
-    let response;
-
-    while (jobStatus === "IN_PROGRESS") {
-        response = await textractClient.send(new GetDocumentTextDetectionCommand({ JobId: jobId }));
-        jobStatus = response.JobStatus;
-        if (jobStatus === "IN_PROGRESS") {
-            console.log("Job still in progress, waiting...");
-            await new Promise(resolve => setTimeout(resolve, 15000)); // Adjust timing as needed
-        }
-    }
-
-    if (jobStatus === "SUCCEEDED") {
-        return response; // Return the final response for processing
-    } else {
-        throw new Error(`Textract job failed with status: ${jobStatus}`);
-    }
 }
 
 export default {
