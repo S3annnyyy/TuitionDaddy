@@ -10,3 +10,5 @@ gpt/node_modules
 gpt/files
 **/.env
 go.work.sum
+Tutor/bin/Debug/net8.0/Tutor.dll
+Tutor/bin/Debug/net8.0/Tutor.exe
