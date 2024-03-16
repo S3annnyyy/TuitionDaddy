@@ -2,15 +2,18 @@ import React, { FormEvent, useEffect, useState } from 'react';
 import { loadStripe, StripeCardElement } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
+import { resourceDataType } from '../utils/types';
+import { formatResources, purchaseStudyResource } from '../utils/mktplaceFunctions';
 
 const stripePromise = loadStripe('pk_test_51OeWBEErUfNoRA7UgfVM1N113ESwwN5FzbC4nqkEfwSS0JXiB4rKQiKnCfGjvo0qIL3G19Mu6uG9IFk6kysN9XYx00cSUkYA88');
 
-const PaymentForm: React.FC = () => {
+const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [disabled, setDisabled] = useState(false);
   const [buyerName, setBuyerName] = useState<string>("");
+  const [buyerID, setBuyerID] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,8 +30,10 @@ const PaymentForm: React.FC = () => {
 
   useEffect(() => {
     const name = sessionStorage.getItem("username")
-    if (name) {
+    const ID = sessionStorage.getItem("userid")
+    if (name && ID) {
       setBuyerName(name)
+      setBuyerID(ID)
     }    
   })
 
@@ -51,20 +56,37 @@ const PaymentForm: React.FC = () => {
       setDisabled(false);
     } else {     
       // The PaymentMethod was successfully created      
-      const paymentMethodId = paymentMethod.id;
-      console.log('PaymentMethod ID:', paymentMethodId);
-      console.log(`PaymentMethod ID: ${paymentMethodId}, Name: ${buyerName}`)
-      // Parse to complex MS => Purchase study resource
-      // PARAMS REQUIRED: Description, PaymentMethodID, Price, SellerID, StripeAccountID, UserID  
-      // TODO
-      
-     
+      const paymentMethodId = paymentMethod.id;      
+      console.log(`PaymentMethod ID: ${paymentMethodId}, Name: ${buyerName}`)      
+      // format data by sellerID
+      const formattedItems = formatResources(items)
+      console.log(formattedItems)
+      const description = `Purchase made by ${buyerName}`      
+      let paymentIsSuccessful = true;
+      // Parse to complex MS => Purchase study resource by each consolidated seller
+      for (const sellerID in formattedItems) {
+        const seller = formattedItems[sellerID];        
+        const operationResult = await purchaseStudyResource(sellerID, seller.totalCost, seller.resources, paymentMethodId, description, buyerID)
+        console.log(operationResult, typeof operationResult)
+        // validate operation
+        if (operationResult === false) {          
+          paymentIsSuccessful = false;
+          break;
+        }
+      }     
 
-      // Once purchase is made, reset cart and notify user payment has been made
-      alert("Purchase made!")
-      sessionStorage.setItem("cart", "")
-      sessionStorage.setItem("cartCount", "0")
-      navigate("/marketplace")
+      console.log(paymentIsSuccessful, typeof paymentIsSuccessful)
+      // notify user of outcome
+      if (paymentIsSuccessful) {
+        // Once purchase is made, reset cart and notify user payment has been made
+        alert("Purchase made!")
+        sessionStorage.setItem("cart", "")
+        sessionStorage.setItem("cartCount", "0")
+        navigate("/marketplace")
+      } else {
+        alert("There was error in purchase please try again!")
+        setDisabled(false)
+      }
     }
   };
 
@@ -92,8 +114,8 @@ const PaymentForm: React.FC = () => {
   );
 };
 
-export const StripePayment: React.FC = () => (
+export const StripePayment: React.FC<{items: resourceDataType[] }> = ({items}) => (
   <Elements stripe={stripePromise}>
-    <PaymentForm />
+    <PaymentForm items={items}/>
   </Elements>
 );

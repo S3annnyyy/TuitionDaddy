@@ -37,8 +37,7 @@ def processResourcePurchase(resourceID: int, sellerID: int, buyerID: int, buyerT
     Args:
         resourceID (int): The ID of the resource being purchased.
         sellerID (int): The ID of the seller.
-        buyerID (int): The ID of the buyer.
-        buyerPaymentDetails (dict): A dictionary containing payment details provided by the buyer.
+        buyerID (int): The ID of the buyer.        
     """
     print(resourceID, buyerID, sellerID, buyerPaymentDetails)
 
@@ -47,6 +46,7 @@ def processResourcePurchase(resourceID: int, sellerID: int, buyerID: int, buyerT
     print(user_result)
 
     print("\n --------INVOKING payment microservice--------")
+    # PARAMS REQUIRED: Description, PaymentMethodID, Price, SellerID, StripeAccountID, UserID
     # TODO
 
     print("\n --------INVOKING studyresource microservice--------")

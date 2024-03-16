@@ -62,7 +62,7 @@ const Cart = () => {
 
                 {isPaying && 
                 <div>
-                    <StripePayment />
+                    <StripePayment items={cartItems}/>
                 </div>
                 }
             </div>
