@@ -25,7 +25,7 @@ def purchase_study_resource():
         if request.is_json:
             data = request.get_json()
             result = processResourcePurchase(data['SellerID'], data['Price'], data['Resources'], data['PaymentMethodID'], data['Description'], data['UserID'])    
-            return jsonResponse(200, message=f"Study resource ID: {data['Resources']} purchased!")
+            return jsonResponse(200, message=f"Study resource ID: {data['Resources']} purchased!", data=result)
         else:
             return jsonResponse(400, message="Invalid JSON input")
     except Exception as e:

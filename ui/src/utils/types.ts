@@ -39,3 +39,8 @@ export interface formattedResult {
         resources: string[];
     };
 }
+
+export interface AccordionItemProps {
+    title: string;
+    pdfUrl: string;
+  }

@@ -199,7 +199,7 @@ export const purchaseStudyResource = async (sellerID:string, price: number, reso
         },
         })
         console.log(response)
-        return true
+        return response
     } catch (error: unknown) {
         console.log(`uploadresource catch error: ${error}`)
         return false
