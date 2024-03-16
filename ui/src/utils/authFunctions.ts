@@ -15,7 +15,8 @@ export const handleLogin = async (email: string, password: string): Promise<bool
 
     // store username in sessionstorage
     sessionStorage.setItem("username", response.data.username)
-    sessionStorage.setItem("token", response.data.token)   
+    sessionStorage.setItem("token", response.data.token)
+    sessionStorage.setItem("userid", response.data.userID)   
     const token = response.data.token;
 
     // Set cookie expiration date (optional)

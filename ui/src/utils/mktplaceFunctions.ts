@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { resourceDataType } from './types';
+import { resourceDataType, formattedResult } from './types';
 
 export const getAllResources = async (setPrimaryData:any, setNoData:any) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/all`
@@ -154,4 +154,55 @@ export function removeItemFromCart(resourceID: string) {
         sessionStorage.setItem("cartCount", (count - 1).toString());
       }      
     }
+}
+
+export function formatResources(resources: resourceDataType[]): formattedResult {
+    const result: formattedResult = {};
+  
+    for (const resource of resources) {
+      const { sellerID, sellerName, resourceID, resourcePrice } = resource;
+  
+      if (!result[sellerID]) {
+        result[sellerID] = {
+          sellerName,
+          totalCost: 0,
+          resources: [],
+        };
+      }
+  
+      result[sellerID].totalCost += resourcePrice;
+      result[sellerID].resources.push(resourceID);
+    }
+  
+    return result;
+}
+
+export const purchaseStudyResource = async (sellerID:string, price: number, resources: any, paymentMethodID:string, desc:string, buyerID:string) => {
+    const URL = `${import.meta.env.VITE_PURCHASERESOURCE_ENDPOINT}`       
+
+    console.log(sellerID, price, resources, paymentMethodID, desc, buyerID)
+    // call complex MS to purchase study resource
+    // return true if successful signup else false
+    const purchaseData = {
+        "Description": desc,
+        "PaymentMethodID": paymentMethodID,
+        "Price": price,
+        "SellerID": sellerID,        
+        "UserID": buyerID,
+        "Resources": resources
+    }
+
+    try {
+        const response = await axios.post(URL, purchaseData, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        })
+        console.log(response)
+        return response
+    } catch (error: unknown) {
+        console.log(`uploadresource catch error: ${error}`)
+        return false
+    } 
+    
 }

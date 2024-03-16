@@ -16,6 +16,7 @@ def jsonResponse(rescode, **kwargs):
 
 studyresourceURL = "http://localhost:8000/studyresources"
 userURL = "http://localhost:3000/user/paymentdetails"
+paymentURL = "http://localhost:8080/payment"
 
 @app.route("/purchasestudyresource", methods=['POST'])
 def purchase_study_resource():
@@ -23,39 +24,57 @@ def purchase_study_resource():
         # Check if data parsed are in JSON format    
         if request.is_json:
             data = request.get_json()
-            result = processResourcePurchase(data['resourceID'], data['sellerID'], data['buyerID'], data['buyerToken'], data['buyerPaymentDetails'])    
-            return jsonResponse(200, message=f"Study resource ID: {data['resourceID']} purchased!")
+            result = processResourcePurchase(data['SellerID'], data['Price'], data['Resources'], data['PaymentMethodID'], data['Description'], data['UserID'])    
+            return jsonResponse(200, message=f"Study resource ID: {data['Resources']} purchased!", data=result)
         else:
             return jsonResponse(400, message="Invalid JSON input")
     except Exception as e:
         return jsonResponse(500, message=f"Purchase study resource internal error: {e}")
     
-def processResourcePurchase(resourceID: int, sellerID: int, buyerID: int, buyerToken: str, buyerPaymentDetails: dict) -> None:
+def processResourcePurchase(sellerID:int, price: float, resources: list, paymentMethodID:str, desc:str, buyerID:str) -> None:
+    
     """
     Process a resource purchase transaction.
 
-    Args:
-        resourceID (int): The ID of the resource being purchased.
+    Args:        
         sellerID (int): The ID of the seller.
-        buyerID (int): The ID of the buyer.
-        buyerPaymentDetails (dict): A dictionary containing payment details provided by the buyer.
+        price (float): The total purchase cost
+        resources (list): Array of the ID of the resources being purchased.
+        paymentMethodID (str): To generate Stripe intent
+        desc (str): Description of the purchase
+        buyerID (int): The ID of the buyer.        
     """
-    print(resourceID, buyerID, sellerID, buyerPaymentDetails)
+    print(sellerID, price, resources, paymentMethodID, desc, buyerID)
 
-    print("\n --------INVOKING user microservice--------")
-    user_result = invoke_http(userURL, method="GET", cookies={'Authorization': buyerToken}, json={"UserID": sellerID})    
-    print(user_result)
+    print("\n --------INVOKING user microservice GET SELLER STRIPE ACC ID--------")
+    user_result = invoke_http(userURL, method="GET", json={"UserID": int(sellerID)})    
+    sellerStripeAccID = user_result['data']
+    print(sellerStripeAccID)
 
-    print("\n --------INVOKING payment microservice--------")
-    # TODO
+    print("\n --------INVOKING payment microservice MAKE PURCHASE--------")
+    paymentBody = {
+        "Price": int(price),
+        "Description": str(desc),
+        "UserID":  str(buyerID),
+        "SellerID": str(sellerID),
+        "StripeAccountID": str(sellerStripeAccID),
+        "PaymentMethodID": str(paymentMethodID)
+    }      
+    paymentResult = invoke_http(paymentURL, method="POST", json=paymentBody)
+    print(paymentResult)
 
-    print("\n --------INVOKING studyresource microservice--------")
-    resource_result = invoke_http(f"{studyresourceURL}/{resourceID}", method="GET")
-    resource = resource_result['data']['resources3URL']
-    print(f"resource: {resource} obtained")
+    print("\n --------INVOKING studyresource microservice GET RESOURCE--------")
+    urlLinks = []
+    for resourceID in resources:
+        resource_result = invoke_http(f"{studyresourceURL}/{resourceID}", method="GET")
+        url = resource_result['data']['resources3URL']
+        print(f"resource: {url} obtained")
+        urlLinks.append(url)        
 
     print("\n --------INVOKING Error & Notif microservice via AMPQ--------")
-    # TODO 
+    # TODO
+
+    return urlLinks
 
 if __name__ == "__main__":
     print(f"This is flask complex microservice {os.path.basename(__file__)} for purchasing study resource")          
