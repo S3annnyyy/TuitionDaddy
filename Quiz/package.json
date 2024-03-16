@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.18.0",
     "@aws-sdk/client-s3": "^3.533.0",
     "@aws-sdk/client-textract": "^3.535.0",
+    "@langchain/anthropic": "^0.1.8",
     "@langchain/community": "^0.0.40",
     "@langchain/core": "^0.1.48",
     "@langchain/openai": "^0.0.21",
@@ -25,6 +27,7 @@
     "mongoose": "^8.2.1",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",
+    "openai": "^4.29.1",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "textract": "^2.5.0",

@@ -1,17 +1,10 @@
 import multer from "multer";
 import db from "../libs/db.js";
 import pdfReader from "../libs/pdfReader.js";
+import generateQuiz from "../libs/quizLLMGenerator.js";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
 import { TextractClient, StartDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
-
-//LangChain Imports
-// import { LLMChain } from "langchain/chains";
-// import { PromptTemplate } from "@langchain/core/prompts";
-// import { OpenAI } from "@langchain/openai";
-// import { ChatOpenAI } from "@langchain/openai";
-// import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-// import { z } from "zod";
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage }); 
@@ -77,9 +70,6 @@ function setupRoutes(app) {
 
             const dbResponse = await db.query(query, values);
 
-            //add gpt code here
-            //get pdf file from s3
-            //figure out how to read the file with pdfreader
             //send to chatgpt using langchain(?)
             //once you set qns using chatgpt, add to res.json, which returns qns from chatgpt
             if (filetype === 'PDF') {
@@ -92,10 +82,12 @@ function setupRoutes(app) {
 
                 try {
                     const extractedText = await pdfReader.processTextract(jobId);
+                    const generatedQuiz = await generateQuiz.generateQuiz(extractedText, numQnsValue, questionTypeValue);
+                    //store into database
                     res.json({
                         error: false,
                         message: "PDF processed successfully.",
-                        extractedText: extractedText,
+                        generatedQuiz: generatedQuiz,
                         dbData: dbResponse,
                     });
                 } catch (textractError) {
@@ -107,7 +99,6 @@ function setupRoutes(app) {
                         });
                     }
                 }
-
                 return;
             }
 
@@ -122,7 +113,7 @@ function setupRoutes(app) {
                 //questions: ,
                 dbData: dbResponse,
             });
-            
+
         } catch(error) {
             console.error('Error uploading file or in database operation:', error); 
             if (!res.headersSent) {
@@ -133,6 +124,9 @@ function setupRoutes(app) {
             }
         }
     });
+
+    // app.post('/quiz', function, async (req, res))
+    //extract data from db,, db.query
 }
 
 export default {
