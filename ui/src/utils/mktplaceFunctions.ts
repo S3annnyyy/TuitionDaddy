@@ -180,15 +180,16 @@ export function formatResources(resources: resourceDataType[]): formattedResult 
 export const purchaseStudyResource = async (sellerID:string, price: number, resources: any, paymentMethodID:string, desc:string, buyerID:string) => {
     const URL = `${import.meta.env.VITE_PURCHASERESOURCE_ENDPOINT}`       
 
+    console.log(sellerID, price, resources, paymentMethodID, desc, buyerID)
     // call complex MS to purchase study resource
     // return true if successful signup else false
     const purchaseData = {
-        // "Description": desc,
-        // "PaymentMethodID": paymentMethodID,
-        // "Price": price,
-        // "SellerID": sellerID,
-        // "StripeAccountID": stripAccountID,
-        // "UserID": buyerID
+        "Description": desc,
+        "PaymentMethodID": paymentMethodID,
+        "Price": price,
+        "SellerID": sellerID,        
+        "UserID": buyerID,
+        "Resources": resources
     }
 
     try {
