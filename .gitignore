@@ -3,6 +3,9 @@
 **/*.exe~
 Auth/.env
 go.work.sum
+Tutor/bin
+Tutor/obj
+Tutor/appsettings.json
 gpt/node_modules
 gpt/files
 **/.env
