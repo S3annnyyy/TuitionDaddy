@@ -139,6 +139,34 @@ namespace Tutor.Controllers
                 conn.Close();
             }
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> GetTutorProfilesBySearch(string search)
+        {
+            string query = @"
+                SELECT * 
+                FROM tutorProfile
+                WHERE description like '%search%'
+                OR experience like '%search%'
+                OR @search LIKE ANY(subjectlevel)";
+            DataTable table = new();
+            string connectionString = _configuration.GetConnectionString("Default");
+            NpgsqlDataReader myReader;
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+            try
+            {
+                NpgsqlCommand command = new NpgsqlCommand(query, conn);
+                command.Parameters.AddWithValue("@search", search);
+                myReader = await command.ExecuteReaderAsync();
+                table.Load(myReader);
+                myReader.Close();
+                return Ok(table);
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
         [HttpPost("price")]
         public async Task<IActionResult> CreateTutorPrices(TutorPrice price)
         {
