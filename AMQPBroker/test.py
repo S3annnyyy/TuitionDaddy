@@ -11,7 +11,6 @@ import json
 import amqp_connection
 
 from dotenv import load_dotenv
-import os
 
 # Manually load the .env file
 load_dotenv()
