@@ -145,9 +145,12 @@ namespace Tutor.Controllers
             string query = @"
                 SELECT * 
                 FROM tutorProfile
-                WHERE description like '%search%'
-                OR experience like '%search%'
-                OR @search LIKE ANY(subjectlevel)";
+                WHERE description ILIKE '%' || @search || '%'
+                OR experience ILIKE '%' || @search || '%'
+                OR EXISTS (
+                    SELECT *
+                    FROM unnest(subjectlevel) as subject
+                    WHERE subject ILIKE '%' || @search || '%')";
             DataTable table = new();
             string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;

@@ -1,6 +1,6 @@
 import SearchBar from "../components/SearchBar";
 import { SetStateAction, useEffect, useState } from "react";
-import { TutorProfiles } from '../api/tutorsApi';
+import { SearchProfiles, TutorProfiles } from '../api/tutorsApi';
 
 
 interface Tutor {
@@ -12,11 +12,21 @@ interface Tutor {
 }    
 
 const Tutors = () => {
-    const [, setSearch] = useState("");
-    const [Profiles, setProfiles] = useState<Tutor[]>([])
+    const [search, setSearch] = useState("");
+    const [Profiles, setProfiles] = useState<Tutor[]>([]);
+
     const handleSearchChange = (value: SetStateAction<string>) => {
         setSearch(value);
-    }
+        const fetchData = async () => {
+            try {
+                const data = await SearchProfiles(search);
+                setProfiles(data);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchData();
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,7 +60,8 @@ const Tutors = () => {
                             </p>
                         </div>
                     </div>
-            )}
+                )
+            }
         </div>
     )
 }
