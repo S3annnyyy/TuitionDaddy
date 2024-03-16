@@ -10,7 +10,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
         chunkOverlap: 250,
     });
 
-    const cleanedText = extractedText.replace(/\n/g, ' ');
+    const cleanedText = await extractedText.replace(/\n/g, ' ');
 
     const textSummary = await splitter.splitText(cleanedText);
 
@@ -36,7 +36,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
         The transcript of the podcast will also be used as the basis for a ${question_type} questions and answer bot.
         Provide a ${num_qns} number of example ${question_type} questions and answers that could be asked about the text. Make these questions very specific.
 
-        Total output will be a list of topics of the text and a list of example ${question_type} questions the user could answer, along with and indication of the correct answer.
+        Total output will be a list of topics of the text and a list of ${num_qns} example ${question_type} questions the user could answer, along with the correct answer and explanation.
 
         LIST OF TOPICS AND QUESTIONS:
         `;
@@ -58,7 +58,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
         Provide a ${num_qns} number of examples ${question_type} questions and answers that could be asked to the reader about the topics and text. Make
         these questions very specific.
         If the context isn't useful, return the original list of topics and questions.
-        Total output will be a list of topics of the text and a list of example ${question_type} questions the user could answer, along with and indication of the correct answer.
+        Total output will be a list of topics of the text and a list of ${num_qns} example ${question_type} questions the user could answer, along with the correct answers and explanation.
         
         LIST OF TOPICS AND QUESTIONS:
         `;
@@ -78,7 +78,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
 
     try {
         const summary = await summarizeChain.invoke(inputForChain);
-        return summary.replace(/\n/g, ' ');
+        return summary['output_text'];
     } catch (error) {
         console.error('Error processing document with summarizeChain:', error);
     }

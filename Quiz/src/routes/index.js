@@ -83,11 +83,12 @@ function setupRoutes(app) {
                 try {
                     const extractedText = await pdfReader.processTextract(jobId);
                     const generatedQuiz = await generateQuiz.generateQuiz(extractedText, numQnsValue, questionTypeValue);
+                    const cleanedQuiz = generatedQuiz.replace(/\n/g, ' ')
                     //store into database
                     res.json({
                         error: false,
                         message: "PDF processed successfully.",
-                        generatedQuiz: generatedQuiz,
+                        generatedQuiz: cleanedQuiz,
                         dbData: dbResponse,
                     });
                 } catch (textractError) {
