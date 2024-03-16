@@ -22,6 +22,15 @@ const client = new S3Client({
 
 //clean console.logs()
 
+//FOR COMPLEX MICROSERVICE
+//get s3 URL links
+//get by education level --> 
+
+//TO CONVERT PDF TO PPTX
+
+//schema question: , options: , index: , 
+// afterwards try explanation on why it is correct
+
 function setupRoutes(app) {
     //used to update upload.single('pdf')
     const uploadPdfAndForm = upload.fields([
@@ -152,7 +161,7 @@ async function waitForTextractJobCompletion(jobId) {
         jobStatus = response.JobStatus;
         if (jobStatus === "IN_PROGRESS") {
             console.log("Job still in progress, waiting...");
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Adjust timing as needed
+            await new Promise(resolve => setTimeout(resolve, 15000)); // Adjust timing as needed
         }
     }
 
