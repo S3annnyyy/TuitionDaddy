@@ -35,16 +35,9 @@ const Product = () => {
             <div className='text-xl font-bold'>Resource Description: <span className='text-slate-500 font-normal'>{resourceData.resourceDesc}</span></div>
             <hr className='mt-4 mb-4 mr-10'/>
             <div className='grid grid-cols-subgrid grid-cols-1 md:grid-cols-2 gap-4 mx-10'>
-              <motion.button 
-                    className="max-w-72 rounded-full border-solid border-2 border-gray-800 py-2 text-white bg-black hover:outline outline-offset-2 hover:outline-black"                  
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                  Purchase                   
-              </motion.button>
               <Link to="/marketplace">
                 <motion.button
-                  className="w-72 rounded-full border-solid border-2 border-gray-800 py-2 hover:outline outline-offset-2 hover:outline-primary"
+                  className="w-96 rounded-full border-solid border-2 border-gray-800 py-2 hover:outline outline-offset-2 hover:outline-primary"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => addToCart(resourceData)}
