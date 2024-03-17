@@ -9,6 +9,7 @@ import Class from '../pages/Class'
 import Quiz from '../pages/Quiz'
 import UploadResource from '../pages/UploadResource'
 import Cart from '../pages/Cart'
+import GPTCher from '../pages/GPTCher'
 
 export const router = createBrowserRouter([
     {
@@ -23,7 +24,8 @@ export const router = createBrowserRouter([
             { path: 'marketplace/:itemID', element: <Product /> },            
             { path: "tutors", element: <Tutors /> },
             { path: "class", element: <Class /> },
-            { path: "quiz", element: <Quiz /> }
+            { path: "quiz", element: <Quiz /> },
+            { path: "gptcher", element: <GPTCher /> }
 
         ]
     }
