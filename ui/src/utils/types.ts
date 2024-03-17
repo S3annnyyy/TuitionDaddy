@@ -43,4 +43,8 @@ export interface formattedResult {
 export interface AccordionItemProps {
     title: string;
     pdfUrl: string;
-  }
+}
+
+export interface urlLinksDataType {
+    [fileName: string]: string;
+}

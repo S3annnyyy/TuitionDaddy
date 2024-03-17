@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AccordionItemProps } from '../utils/types';
+import { getPurchasedResources } from '../utils/mktplaceFunctions';
 
 const AccordionItem: React.FC<AccordionItemProps> = ({ title, pdfUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +34,15 @@ const Profile: React.FC = () => {
     const data = sessionStorage.getItem('resourceLinks');
     if (data !== null) {
       setResourceLinks(JSON.parse(data));
+    } else {
+      // pull from user DB
+      const userID = sessionStorage.getItem("userid")
+      if (userID) {
+        getPurchasedResources(userID)
+        .then(res => {
+          setResourceLinks(res?.data.resource_links);
+        })        
+      }
     }
     console.log(resourceLinks);
   }, []);

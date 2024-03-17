@@ -2,7 +2,7 @@ import axios  from 'axios';
 
 export const handleLogin = async (email: string, password: string): Promise<boolean> => {   
   console.log({email, password})
-  const URL = `${import.meta.env.VITE_AUTH_ENDPOINT}/login`
+  const URL = `${import.meta.env.VITE_USER_ENDPOINT}/login`
 
   // call endpoint to initialize login and get back cookie
   // return true if successful login else false 
@@ -38,7 +38,7 @@ export const handleLogin = async (email: string, password: string): Promise<bool
 export const handleSignUp = async (email: string, password: string, fullname: string, organisation: string, educationLevel: string, role: string, transcript: File | undefined): Promise<boolean> => {
   console.log({email, password, fullname, organisation, educationLevel, role, transcript})
 
-  const URL = `${import.meta.env.VITE_AUTH_ENDPOINT}/signup`
+  const URL = `${import.meta.env.VITE_USER_ENDPOINT}/signup`
   const formData = new FormData();
   formData.append("Email", email);
   formData.append("Password", password);
