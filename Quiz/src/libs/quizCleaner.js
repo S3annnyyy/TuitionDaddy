@@ -19,7 +19,7 @@ async function cleanQuiz(text) {
 
     try {
         const jsonResponse = JSON.parse(completion.choices[0].message.content);
-        return JSON.stringify(jsonResponse);
+        return jsonResponse;
     } catch (error) {
         console.error("Failed to parse response as JSON:", error);
         throw error;

@@ -6,6 +6,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
 import { TextractClient, StartDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
 import quizCleaner from "../libs/quizCleaner.js";
+import short from "short-uuid";
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage }); 
@@ -13,21 +14,15 @@ const bucketName = process.env.AWS_BUCKET_NAME;
 const textractClient = new TextractClient({ region: process.env.AWS_DEFAULT_REGION });
 const client = new S3Client({ 
     region: process.env.AWS_DEFAULT_REGION, 
-}); 
-
-//FOR COMPLEX MICROSERVICE
-//get s3 URL links
-//get by education level --> 
-
-//schema question: , options: , index: , 
-// afterwards try explanation on why it is correct
+});
 
 function setupRoutes(app) {
     //used to update upload.single('pdf')
     const uploadPdfAndForm = upload.fields([
-        { name: 'pdf_pptx', maxCount: 1},
-        { name: 'num_qns', maxCount: 1},
-        { name: 'question_type', maxCount: 1}    
+        { name: 'pdf_pptx', maxCount: 1 },
+        { name: 'num_qns', maxCount: 1 },
+        { name: 'question_type', maxCount: 1 },
+        { name: 'title', maxCount: 1 },    
     ]);
 
     app.post('/generate-quiz', uploadPdfAndForm, async (req, res) => {
@@ -39,6 +34,7 @@ function setupRoutes(app) {
             //values of the form fields
             const numQnsValue = formFields.num_qns;
             const questionTypeValue = formFields.question_type;
+            const quizTitle = formFields.title;
 
             if (!file) { 
                 return res.status(400).send('No files uploaded.'); 
@@ -69,8 +65,6 @@ function setupRoutes(app) {
 
             const dbResponse = await db.query(query, values);
 
-            //send to chatgpt using langchain(?)
-            //once you set qns using chatgpt, add to res.json, which returns qns from chatgpt
             if (filetype === 'PDF') {
                 //initialize textract
                 const startCommand = new StartDocumentTextDetectionCommand({
@@ -80,16 +74,24 @@ function setupRoutes(app) {
                 const jobId = startResponse.JobId;
 
                 try {
+                    //process pdf and generate quiz
                     const extractedText = await pdfReader.processTextract(jobId);
                     const generatedQuiz = await generateQuiz.generateQuiz(extractedText, numQnsValue, questionTypeValue);
-                    const cleanedQuiz = generatedQuiz.replace(/\n/g, ' ');
+                    const cleanedQuiz = generatedQuiz.replace(/\n/g, ' '); //remove the \n symbols
+
+                    //run it through quiz cleaner to get the output of json object
                     const jsonQuiz = await quizCleaner.cleanQuiz(cleanedQuiz);
 
-                    //store into database
+                    //stringify the jsonQuiz
+                    const jsonString = JSON.stringify(jsonQuiz);
+                    const quizObject = JSON.parse(jsonString);
+
+                    await uploadQuizToDatabase(quizObject, quizTitle);
+
                     res.json({
                         error: false,
-                        message: "PDF processed and quiz generated successfully.",
-                        generatedQuiz: jsonQuiz,
+                        message: "PDF processed and quiz generated successfully. Quiz uploaded into database as well.",
+                        generatedQuiz: jsonString,
                         dbData: dbResponse,
                     });
                 } catch (textractError) {
@@ -127,8 +129,28 @@ function setupRoutes(app) {
         }
     });
 
-    // app.post('/quiz', function, async (req, res))
-    //extract data from db,, db.query
+}
+
+async function uploadQuizToDatabase(quizObject, quizTitle) {
+    try {
+        //separated quiz data
+        const topics = quizObject.topics;
+        const questions = quizObject.questions;
+
+        //create quiz id
+        const quizId = short.generate();
+
+        //upload quiz information into database
+        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
+        const quizValues = [quizId, quizTitle, topics, questions];
+
+        const dbResponseQuiz = await db.query(quizQuery, quizValues);
+
+        console.log('Quiz uploaded to database successfully:', dbResponseQuiz);    
+    } catch (dbError) {
+        console.error('Error uploading quiz to database:', dbError);
+        throw dbError; // Re-throw the error to be handled by the caller
+    }
 }
 
 export default {
