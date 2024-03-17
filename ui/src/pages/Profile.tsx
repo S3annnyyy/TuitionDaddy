@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import { AccordionItemProps } from '../utils/types';
-
-
+import { getPurchasedResources } from '../utils/mktplaceFunctions';
 
 const AccordionItem: React.FC<AccordionItemProps> = ({ title, pdfUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,21 +28,30 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, pdfUrl }) => {
 };
 
 const Profile: React.FC = () => {
-    const [urlLinks, setUrlLinks] = useState<string[]>([]);  
+  const [resourceLinks, setResourceLinks] = useState<{ [key: string]: string }>({});
 
-    useEffect(() => {
-        const data = sessionStorage.getItem('resourceLinks');
-        if (data !== null) {
-            setUrlLinks(JSON.parse(data));
-        }
-        console.log(urlLinks)
-    }, []);
+  useEffect(() => {
+    const data = sessionStorage.getItem('resourceLinks');
+    if (data !== null) {
+      setResourceLinks(JSON.parse(data));
+    } else {
+      // pull from user DB
+      const userID = sessionStorage.getItem("userid")
+      if (userID) {
+        getPurchasedResources(userID)
+        .then(res => {
+          setResourceLinks(res?.data.resource_links);
+        })        
+      }
+    }
+    console.log(resourceLinks);
+  }, []);
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">My PDFs</h2>
-      {urlLinks.map((pdfUrl, index) => (
-        <AccordionItem key={index} title={`PDF ${index + 1}`} pdfUrl={pdfUrl} />
+      <h2 className="text-2xl font-bold mb-4">Your Study Resources</h2>
+      {Object.entries(resourceLinks).map(([title, pdfUrl], index) => (
+        <AccordionItem key={index} title={title} pdfUrl={pdfUrl} />
       ))}
     </div>
   );

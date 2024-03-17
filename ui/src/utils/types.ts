@@ -36,11 +36,15 @@ export interface formattedResult {
     [sellerID: number]: {
         sellerName: string;
         totalCost: number;
-        resources: string[];
+        resources: formattedResource[];
     };
 }
 
 export interface AccordionItemProps {
     title: string;
     pdfUrl: string;
-  }
+}
+
+export interface urlLinksDataType {
+    [fileName: string]: string;
+}

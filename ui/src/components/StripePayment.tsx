@@ -3,7 +3,7 @@ import { loadStripe, StripeCardElement } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resourceDataType } from '../utils/types';
-import { formatResources, purchaseStudyResource } from '../utils/mktplaceFunctions';
+import { formatResources, purchaseStudyResource, storePurchasedResources } from '../utils/mktplaceFunctions';
 
 const stripePromise = loadStripe('pk_test_51OeWBEErUfNoRA7UgfVM1N113ESwwN5FzbC4nqkEfwSS0JXiB4rKQiKnCfGjvo0qIL3G19Mu6uG9IFk6kysN9XYx00cSUkYA88');
 
@@ -16,7 +16,7 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
   const [buyerID, setBuyerID] = useState<string>("");  
   const navigate = useNavigate();
   let location = useLocation();
-  let urlLinks: string[] = [];
+  let urlLinks = {};
 
   useEffect(() => {
     // Real-time validation errors from the card Element
@@ -85,9 +85,9 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
           if (operationResult && operationResult.data) {
             // This block will execute only if operationResult is not false and has a data property
             console.log(operationResult.data.data);
-            for (const link of operationResult.data.data) {
-              urlLinks.push(link)
-            }
+            urlLinks = operationResult.data.data
+            // store in database
+            storePurchasedResources(urlLinks, buyerID)
           } else {
             // Handle the case where operationResult is false
             console.error("Error occurred in purchase operation.");

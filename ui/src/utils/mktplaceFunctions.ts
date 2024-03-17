@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { resourceDataType, formattedResult } from './types';
+import { resourceDataType, formattedResult, formattedResource, urlLinksDataType } from './types';
 
 export const getAllResources = async (setPrimaryData:any, setNoData:any) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/all`
@@ -36,7 +36,7 @@ export const getResourceByID = async (resourceID: string, setResourceData: any) 
 }
 
 export const getUserInfo = async (setUserInfo: any) => {
-    const URL = `${import.meta.env.VITE_AUTH_ENDPOINT}/userinfo`
+    const URL = `${import.meta.env.VITE_USER_ENDPOINT}/userinfo`
     const token = sessionStorage.getItem('token')   
     console.log(token)
     const config = {
@@ -160,7 +160,7 @@ export function formatResources(resources: resourceDataType[]): formattedResult 
     const result: formattedResult = {};
   
     for (const resource of resources) {
-      const { sellerID, sellerName, resourceID, resourcePrice } = resource;
+      const { sellerID, sellerName, resourceID, resourceName, resourcePrice } = resource;
   
       if (!result[sellerID]) {
         result[sellerID] = {
@@ -171,13 +171,13 @@ export function formatResources(resources: resourceDataType[]): formattedResult 
       }
   
       result[sellerID].totalCost += resourcePrice;
-      result[sellerID].resources.push(resourceID);
+      result[sellerID].resources.push({ resourceID, resourceName, resourcePrice });
     }
   
     return result;
 }
 
-export const purchaseStudyResource = async (sellerID:string, price: number, resources: any, paymentMethodID:string, desc:string, buyerID:string) => {
+export const purchaseStudyResource = async (sellerID:string, price: number, resources: formattedResource[], paymentMethodID:string, desc:string, buyerID:string) => {
     const URL = `${import.meta.env.VITE_PURCHASERESOURCE_ENDPOINT}`       
 
     console.log(sellerID, price, resources, paymentMethodID, desc, buyerID)
@@ -205,4 +205,31 @@ export const purchaseStudyResource = async (sellerID:string, price: number, reso
         return false
     } 
     
+}
+
+export const storePurchasedResources = async (resource: urlLinksDataType, userID: string) => {
+    const URL = `${import.meta.env.VITE_USER_ENDPOINT}/users/${userID}/resource-links`
+    try {
+        const response = await axios.post(URL, resource, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        })
+        console.log(response)
+        return response
+    } catch (error: unknown) {
+        console.log(`store purchased resource catch error: ${error}`)
+        return false
+    } 
+}
+
+export const getPurchasedResources = async (userID: string) => {
+    const URL = `${import.meta.env.VITE_USER_ENDPOINT}/users/${userID}/resource-links`
+    try {
+        const response = await axios.get(URL)
+        console.log(response)
+        return response
+    } catch (error: unknown) {
+        console.log(`store purchased resource catch error: ${error}`)        
+    } 
 }
