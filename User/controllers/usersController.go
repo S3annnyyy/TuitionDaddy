@@ -272,3 +272,67 @@ func RetrieveUserPaymentDetails(c *gin.Context) {
 		"data": user.StripeAccountID,
 	})
 }
+
+func StoreResourceLinks(c *gin.Context) {
+	userID := c.Param("userID")
+
+	var newResourceLinksMap map[string]string
+	if err := c.ShouldBindJSON(&newResourceLinksMap); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := initializers.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	var existingResourceLinksMap map[string]string
+	if user.ResourceLinks != "" {
+		err := json.Unmarshal([]byte(user.ResourceLinks), &existingResourceLinksMap)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to deserialize existing resource links"})
+			return
+		}
+	} else {
+		existingResourceLinksMap = make(map[string]string)
+	}
+
+	for key, value := range newResourceLinksMap {
+		existingResourceLinksMap[key] = value
+	}
+
+	jsonData, err := json.Marshal(existingResourceLinksMap)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to serialize resource links"})
+		return
+	}
+
+	user.ResourceLinks = string(jsonData)
+	if err := initializers.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store resource links"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Resource links stored successfully"})
+}
+
+func RetrieveResourceLinks(c *gin.Context) {
+	userID := c.Param("userID")
+
+	var user models.User
+	if err := initializers.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	var resourceLinksMap map[string]string
+	err := json.Unmarshal([]byte(user.ResourceLinks), &resourceLinksMap)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to deserialize resource links"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"resource_links": resourceLinksMap})
+}
