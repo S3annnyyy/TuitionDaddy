@@ -64,12 +64,14 @@ def processResourcePurchase(sellerID:int, price: float, resources: list, payment
     print(paymentResult)
 
     print("\n --------INVOKING studyresource microservice GET RESOURCE--------")
-    urlLinks = []
-    for resourceID in resources:
-        resource_result = invoke_http(f"{studyresourceURL}/{resourceID}", method="GET")
+    urlLinks = {}
+    for resource in resources:
+        print(resource)
+        resource_result = invoke_http(f"{studyresourceURL}/{resource['resourceID']}", method="GET")
         url = resource_result['data']['resources3URL']
         print(f"resource: {url} obtained")
-        urlLinks.append(url)        
+        urlLinks[resource['resourceName']] = url
+    print(urlLinks)
 
     print("\n --------INVOKING Error & Notif microservice via AMPQ--------")
     # TODO

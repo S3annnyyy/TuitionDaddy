@@ -16,7 +16,7 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
   const [buyerID, setBuyerID] = useState<string>("");  
   const navigate = useNavigate();
   let location = useLocation();
-  let urlLinks: string[] = [];
+  let urlLinks = {};
 
   useEffect(() => {
     // Real-time validation errors from the card Element
@@ -85,9 +85,7 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
           if (operationResult && operationResult.data) {
             // This block will execute only if operationResult is not false and has a data property
             console.log(operationResult.data.data);
-            for (const link of operationResult.data.data) {
-              urlLinks.push(link)
-            }
+            urlLinks = operationResult.data.data
           } else {
             // Handle the case where operationResult is false
             console.error("Error occurred in purchase operation.");

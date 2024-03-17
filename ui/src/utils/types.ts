@@ -36,7 +36,7 @@ export interface formattedResult {
     [sellerID: number]: {
         sellerName: string;
         totalCost: number;
-        resources: string[];
+        resources: formattedResource[];
     };
 }
 
