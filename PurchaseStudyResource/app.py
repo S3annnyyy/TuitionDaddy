@@ -14,9 +14,9 @@ def jsonResponse(rescode, **kwargs):
     res_data = {key: value for key, value in kwargs.items()}
     return jsonify(res_data), rescode
 
-studyresourceURL = "http://localhost:8000/studyresources"
-userURL = "http://localhost:3000/user/paymentdetails"
-paymentURL = "http://localhost:8080/payment"
+studyresourceURL = "http://studyresource:8000/studyresources"
+userURL = "http://user:3000/user/paymentdetails"
+paymentURL = "http://payment:8080/payment"
 
 @app.route("/purchasestudyresource", methods=['POST'])
 def purchase_study_resource():
