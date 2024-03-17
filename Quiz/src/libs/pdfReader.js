@@ -11,7 +11,7 @@ async function processTextract(jobId) {
         
         return extractedText;
     } catch (error) {
-        console.error('Error processing document with Textract:', error);
+        console.error('Error processing document with Textract or Mistral:', error);
         throw error; // Rethrow or handle as needed
     }
 }
