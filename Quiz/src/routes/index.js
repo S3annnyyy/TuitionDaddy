@@ -5,6 +5,7 @@ import generateQuiz from "../libs/quizLLMGenerator.js";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
 import { TextractClient, StartDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
+import quizCleaner from "../libs/quizCleaner.js";
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage }); 
@@ -13,8 +14,6 @@ const textractClient = new TextractClient({ region: process.env.AWS_DEFAULT_REGI
 const client = new S3Client({ 
     region: process.env.AWS_DEFAULT_REGION, 
 }); 
-
-//clean console.logs()
 
 //FOR COMPLEX MICROSERVICE
 //get s3 URL links
@@ -31,7 +30,7 @@ function setupRoutes(app) {
         { name: 'question_type', maxCount: 1}    
     ]);
 
-    app.post('/pdf', uploadPdfAndForm, async (req, res) => {
+    app.post('/generate-quiz', uploadPdfAndForm, async (req, res) => {
         try {
             const files = req.files;
             const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
@@ -83,20 +82,22 @@ function setupRoutes(app) {
                 try {
                     const extractedText = await pdfReader.processTextract(jobId);
                     const generatedQuiz = await generateQuiz.generateQuiz(extractedText, numQnsValue, questionTypeValue);
-                    const cleanedQuiz = generatedQuiz.replace(/\n/g, ' ')
+                    const cleanedQuiz = generatedQuiz.replace(/\n/g, ' ');
+                    const jsonQuiz = await quizCleaner.cleanQuiz(cleanedQuiz);
+
                     //store into database
                     res.json({
                         error: false,
-                        message: "PDF processed successfully.",
-                        generatedQuiz: cleanedQuiz,
+                        message: "PDF processed and quiz generated successfully.",
+                        generatedQuiz: jsonQuiz,
                         dbData: dbResponse,
                     });
                 } catch (textractError) {
-                    console.error('Error processing document with Textract:', textractError);
+                    console.error('Error processing PDF and generating quiz:', textractError);
                     if (!res.headersSent) {
                         res.status(500).send({
                             error: true,
-                            message: 'Error processing document with Textract.',
+                            message: 'Error processing PDF and generating quiz.',
                         });
                     }
                 }

@@ -2,7 +2,6 @@ import { TokenTextSplitter } from "langchain/text_splitter";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { loadSummarizationChain } from "langchain/chains";
-import { text } from "express";
 
 async function generateQuiz(extractedText, num_qns, question_type) {
     const splitter = new TokenTextSplitter({
@@ -26,7 +25,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
 
     const summaryTemplate = `
         You are an expert in summarizing texts and then finding the relevant topics.
-        Your goal is to create a list of relevant topics of the text.
+        Your goal is to create a list of relevant topics of the text. There is always an overall theme and topic, and hence only choose relevant topics and questions related and relevant to the overall theme and topics.
 
         Below you find the text:
         --------
@@ -56,7 +55,7 @@ async function generateQuiz(extractedText, num_qns, question_type) {
         Given the new context, refine the list of topics and example questions.
         The text will also be used as the basis for a question and answer bot.
         Provide a ${num_qns} number of examples ${question_type} questions and answers that could be asked to the reader about the topics and text. Make
-        these questions very specific.
+        these questions very specific, and try not to have overlapping/too similar questions.
         If the context isn't useful, return the original list of topics and questions.
         Total output will be a list of topics of the text and a list of ${num_qns} example ${question_type} questions the user could answer, along with the correct answers and explanation.
         

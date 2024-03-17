@@ -18,6 +18,7 @@
     "@langchain/anthropic": "^0.1.8",
     "@langchain/community": "^0.0.40",
     "@langchain/core": "^0.1.48",
+    "@langchain/mistralai": "^0.0.14",
     "@langchain/openai": "^0.0.21",
     "aws-sdk": "^2.1579.0",
     "cors": "^2.8.5",
