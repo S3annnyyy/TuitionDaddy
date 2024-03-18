@@ -22,7 +22,7 @@ type Payment struct {
 	UserID          string    `json:"UserID"`
 	Price           float64   `json:"Price"`
 	Description     string    `json:"Description"`
-	PaymentMethod   string    `json:"PaymentMethod"`
+	PaymentMethodID string    `json:"PaymentMethodID"`
 	PaymentIntentID string    `json:"PaymentIntentID"`
 	StripeAccountID string    `json:"StripeAccountID"`
 	Refund          bool      `json:"Refund default:false"`

@@ -20,15 +20,14 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const paynowBtn = document.getElementById('paynowBtn');
     const paymentBtn = document.getElementById('paymentBtn');
-    const paymentMethodID = document.getElementById('paymentMethodID');
     
     const stripe = Stripe('<YOUR_STRIPE_PUBLISHABLE_KEY>');
 
     paymentBtn.addEventListener('click', function (event) {
         const price = document.getElementById('price').value;
         const description = document.getElementById('description').value;
+        const paymentMethodID = document.getElementById('paymentMethodID').value;
 
         fetch('http://localhost:8080/payment', {
             method: 'POST',
