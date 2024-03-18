@@ -23,7 +23,7 @@ function startFileUploaderService() {
 
     app.use(express.json());
 
-    app.post('/upload', upload.single('image'), async (req: any, res: any) => {
+    app.post('/upload', upload.single('file'), async (req: any, res: any) => {
 
         const file = req.file;
 
