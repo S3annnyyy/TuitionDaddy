@@ -1,22 +1,47 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import { connectToAMQP } from '../amqp/amqpSetup';
 import { updateSession, removeUserFromSession, publishMessageToRoom, setupRoomQueue } from '../sessions/sessionHandler';
-import type { ExtendedWebSocket } from '../interfaces/ChatInterfaces';
 import { sessionsCollection, messagesCollection } from '../db/mongo';
+import type { ExtendedWebSocket } from '../interfaces/ChatInterfaces';
 
 const wss = new WebSocketServer({ port: Number(process.env.WEB_SOCKET_PORT) });
 function startWebSocketServer() {
-  wss.on('connection', function connection(ws) {
+
+  async function getOrCreateRoom(userId: string, targetId: string) {
+    // Generate a consistent room ID by sorting user IDs
+    const sortedIds = [userId, targetId].sort();
+    const roomId = `room_${sortedIds[0]}_${sortedIds[1]}`;
+  
+    // Check if the room already exists
+    const existingRoom = await sessionsCollection.findOne({
+      room: roomId,
+    });
+  
+    // If the room exists, fetch its messages
+    if (existingRoom) {
+      const messages = await messagesCollection
+        .find({ room: roomId })
+        .sort({ timestamp: -1 })
+        .toArray();
+      return { roomId, messages };
+    } else {
+      // If the room does not exist, create it and return its ID with no messages
+      await sessionsCollection.insertOne({ room: roomId, users: [userId, targetId] });
+      return { roomId, messages: [] };
+    }
+  }
+
+  wss.on('connection', async function connection(ws) {
     console.log('New WebSocket connection');
-
+  
     const extWs = ws as ExtendedWebSocket;
-
+  
     ws.on('message', async function incoming(message) {
       let parsedMessage;
       try {
         const messageString = message.toString();
         parsedMessage = JSON.parse(messageString);
-
+  
         if (!parsedMessage.action) {
           throw new Error("Action is required in the message.");
         }
@@ -27,50 +52,35 @@ function startWebSocketServer() {
         }
         return;
       }
-
-      const { action, room, message: chatMessage, userId, image } = parsedMessage;
-
+  
+      const { action, userId, targetId, message: chatMessage, image, room } = parsedMessage;
+  
       switch (action) {
         case 'join':
-          await updateSession(room, userId);
+          const { roomId: joinRoomId, messages } = await getOrCreateRoom(userId, targetId);
           extWs.userId = userId;
-          extWs.room = room;
-          await setupRoomQueue(room, wss);
-
-          // Fetch past messages for the room
-          const pastMessages = await messagesCollection
-            .find({ room: room })
-            .sort({ timestamp: -1 })
-            .limit(50) // Adjust the limit as necessary
-            .toArray();
-
+          extWs.room = joinRoomId;
+          await setupRoomQueue(joinRoomId, wss);
+  
           // Send past messages to the user
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ history: pastMessages }));
+            ws.send(JSON.stringify({ history: messages }));
           }
-
-          const roomMsg = `${userId} joined room`;
-          console.log(roomMsg);
-
-          const newMessage = {
-            userId,
-            message: roomMsg,
-            timestamp: new Date(),
-            room
-          };
-          await messagesCollection.insertOne(newMessage);
-          publishMessageToRoom(room, newMessage);
+  
+          console.log(`${userId} joined room`);
+  
           break;
         case 'message':
-          const session = await sessionsCollection.findOne({ room: room, users: userId });
-
+          console.log(room)
+          const session = await sessionsCollection.findOne({ room, users: userId });
+  
           if (session) {
             const newMessage = {
               userId,
               message: chatMessage,
               image,
               timestamp: new Date(),
-              room
+              room,
             };
             await messagesCollection.insertOne(newMessage);
             publishMessageToRoom(room, newMessage);
@@ -85,19 +95,12 @@ function startWebSocketServer() {
           }
           break;
         case 'leave':
-          await removeUserFromSession(room, userId);
-          console.log(`${userId} left room: ${room}`);
-          // Consider adding logic to unbind queue from exchange if no more users are in the room
+          const { roomId: leaveRoomId } = await getOrCreateRoom(userId, targetId);
+          await removeUserFromSession(leaveRoomId, userId);
+          console.log(`${userId} left room: ${leaveRoomId}`);
           break;
         default:
           console.log('Unknown action');
-      }
-    });
-
-    ws.on('close', async function () {
-      if (extWs.userId && extWs.room) {
-        await removeUserFromSession(extWs.room, extWs.userId);
-        console.log(`WebSocket connection closed and user ${extWs.userId} removed from room: ${extWs.room}`);
       }
     });
   });
