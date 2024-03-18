@@ -35,8 +35,31 @@ function startWebSocketServer() {
           await updateSession(room, userId);
           extWs.userId = userId;
           extWs.room = room;
-          setupRoomQueue(room, wss).catch(console.error);
-          console.log(`${userId} joined room: ${room}`);
+          await setupRoomQueue(room, wss);
+
+          // Fetch past messages for the room
+          const pastMessages = await messagesCollection
+            .find({ room: room })
+            .sort({ timestamp: -1 })
+            .limit(50) // Adjust the limit as necessary
+            .toArray();
+
+          // Send past messages to the user
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ history: pastMessages }));
+          }
+
+          const roomMsg = `${userId} joined room`;
+          console.log(roomMsg);
+
+          const newMessage = {
+            userId,
+            message: roomMsg,
+            timestamp: new Date(),
+            room
+          };
+          await messagesCollection.insertOne(newMessage);
+          publishMessageToRoom(room, newMessage);
           break;
         case 'message':
           const session = await sessionsCollection.findOne({ room: room, users: userId });
