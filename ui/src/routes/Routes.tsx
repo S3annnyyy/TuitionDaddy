@@ -11,6 +11,7 @@ import UploadResource from '../pages/UploadResource'
 import Cart from '../pages/Cart'
 import Profile from '../pages/Profile'
 import GPTCher from '../pages/GPTCher'
+import Chat from '../pages/Chat'
 
 export const router = createBrowserRouter([
     {
@@ -27,8 +28,8 @@ export const router = createBrowserRouter([
             { path: "tutors", element: <Tutors /> },
             { path: "class", element: <Class /> },
             { path: "quiz", element: <Quiz /> },
-            { path: "gptcher", element: <GPTCher /> }
-
+            { path: "gptcher", element: <GPTCher /> },
+            { path: "chat", element: <Chat /> }
         ]
     }
 ])
