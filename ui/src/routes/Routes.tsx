@@ -5,6 +5,7 @@ import Marketplace from '../pages/Marketplace'
 import Signup from '../pages/Signup'
 import Product from '../pages/Product'
 import Tutors from '../pages/Tutors'
+import Tutor from '../pages/Tutor'
 import Class from '../pages/Class'
 import Quiz from '../pages/Quiz'
 import UploadResource from '../pages/UploadResource'
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
             { path: 'marketplace/user/cart', element: <Cart />},
             { path: 'marketplace/:itemID', element: <Product /> },            
             { path: "tutors", element: <Tutors /> },
+            { path: "tutors/:tutorid", element: <Tutor /> },
             { path: "class", element: <Class /> },
             { path: "quiz", element: <Quiz /> }
 

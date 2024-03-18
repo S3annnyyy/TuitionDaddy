@@ -19,3 +19,33 @@ export const SearchProfiles = async (search: string) => {
         throw error;
     }
 };
+
+export const TutorProfileById = async (tutorid: string) => {
+    try {
+        const response = await axios.get(`http://localhost:5116/Tutor/${tutorid}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tutor:', error);
+        throw error;
+    }
+}
+
+export const TutorPriceByTutor = async (tutorid: string) => {
+    try {
+        const response = await axios.get(`http://localhost:5116/Tutor/price/${tutorid}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tutor:', error);
+        throw error;
+    }
+}
+
+export const AvailableTutorSlotByTutor = async (tutorid: string) => {
+    try {
+        const response = await axios.get(`http://localhost:5116/Tutor/slots/available/${tutorid}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tutor:', error);
+        throw error;
+    }
+}
