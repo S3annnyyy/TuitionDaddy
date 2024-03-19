@@ -1,8 +1,10 @@
+import WebSocket from 'ws';
+
 export interface ChatMessage {
-    userId: string;
-    message: string;
-    timestamp: Date;
-    room: string;
+  userId: string;
+  message: string;
+  timestamp: Date;
+  room: string;
 }
 
 export interface ExtendedWebSocket extends WebSocket {

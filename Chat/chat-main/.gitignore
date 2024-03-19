@@ -10,6 +10,10 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Kubernetes
+k8s/secrets.yaml
+.env
+
 # Caches
 
 .cache
