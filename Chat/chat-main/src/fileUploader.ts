@@ -1,7 +1,9 @@
 import express from 'express';
 import multer from 'multer';
+import cors from 'cors';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from 'uuid';
+import { sessionsCollection, messagesCollection } from './db/mongo';
 
 import { publishMessageToRoom } from './sessions/sessionHandler';
 
@@ -21,9 +23,13 @@ function startFileUploaderService() {
     const storage = multer.memoryStorage();
     const upload = multer({ storage: storage });
 
+    app.use(cors({
+        origin: 'http://localhost:5173' // Replace with the origins you want to allow
+    }));
+
     app.use(express.json());
 
-    app.post('/upload', upload.single('image'), async (req: any, res: any) => {
+    app.post('/upload', upload.single('file'), async (req: any, res: any) => {
 
         const file = req.file;
 
@@ -31,6 +37,12 @@ function startFileUploaderService() {
 
         if (!file) {
             return res.status(400).send('No file uploaded.');
+        }
+
+        // Check if the room exists
+        const session = await sessionsCollection.findOne({ room });
+        if (!session) {
+            return res.status(404).send(`Room ${room} does not exist.`);
         }
 
         const fileName = `${uuidv4()}-${file.originalname}`;
@@ -47,9 +59,7 @@ function startFileUploaderService() {
 
         try {
             await client.send(uploadParams);
-
             const fileLocation = `https://${bucketName}.s3.amazonaws.com/${encodeFileName}`;
-
             const newMessage = {
                 userId,
                 message: fileLocation,
@@ -57,19 +67,22 @@ function startFileUploaderService() {
                 timestamp: new Date(),
                 room,
             };
-        
-            publishMessageToRoom(room, newMessage).then(() => {
-                res.json({ success: true, message: "Message broadcasted successfully." });
-            }).catch(error => {
-                res.status(500).json({ success: false, message: "An error occurred." });
-                console.error(error);
-            });
+            await messagesCollection.insertOne(newMessage);
 
-            res.json({
-                error: false,
-                message: 'File uploaded successfully.',
-                url: fileLocation
-            });
+            publishMessageToRoom(room, newMessage)
+                .then(() => {
+                    res.json({
+                        success: true,
+                        message: 'File uploaded and message sent successfully.',
+                    });
+                })
+                .catch((error) => {
+                    res.status(500).json({
+                        success: false,
+                        message: 'An error occurred while sending the message.',
+                    });
+                    console.error(error);
+                });
         } catch (error) {
             console.error('Error uploading file:', error);
             res.status(500).send({
