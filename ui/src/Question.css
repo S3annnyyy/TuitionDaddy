@@ -1,0 +1,26 @@
+/* Question.css */
+
+.quizQuestion {
+    border: 1px solid #000;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.quizOption {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.quizOption:hover {
+    background-color: lightblue;
+}
+
+.correct {
+    background-color: lightgreen;
+}
+
+.incorrect {
+    background-color: lightcoral;
+}
