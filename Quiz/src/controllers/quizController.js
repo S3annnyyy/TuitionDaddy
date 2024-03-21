@@ -12,6 +12,8 @@ const bucketName = process.env.AWS_BUCKET_NAME;
 const textractClient = new TextractClient({ region: process.env.AWS_DEFAULT_REGION });
 const client = new S3Client({ region: process.env.AWS_DEFAULT_REGION });
 
+// MAKE A NEW FUNCTION TO SUBMIT QUIZ WORKINGS TO THE DATABASE
+
 export async function generateQuizHandler(req, res) {
     try {
         const files = req.files;
@@ -68,12 +70,16 @@ export async function generateQuizHandler(req, res) {
                 const jsonString = JSON.stringify(jsonQuiz);
                 const quizObject = JSON.parse(jsonString);
 
+                const quizTopics = quizObject.topics;
+                const quizQuestions = quizObject.questions;
+
                 await uploadQuizToDatabase(quizObject, quizTitle);
 
                 res.json({
                     error: false,
                     message: "PDF processed and quiz generated successfully. Quiz uploaded into database as well.",
-                    generatedQuiz: jsonString,
+                    quizTopics: quizTopics,
+                    quizQuestions: quizQuestions,
                     dbData: dbResponse,
                 });
             } catch (textractError) {
@@ -159,13 +165,14 @@ export async function openQuiz(req, res) {
     }
 }
 
-async function uploadQuizToDatabase(quizObject, quizTitle) {
+export async function uploadQuizToDatabase(quizObject, quizTitle) {
     try {
         const topics = quizObject.topics;
         const questions = quizObject.questions;
 
         const quizId = short.generate();
 
+        //and then this quizzes table will also have userID and the score but SCORE IS EMPTY INITIALLY FOR THIS FUNCTION
         const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
         const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions)];
 
@@ -177,3 +184,58 @@ async function uploadQuizToDatabase(quizObject, quizTitle) {
         throw dbError;
     }
 }
+
+export async function submitQuizHandler(req, res) {
+    //logic on the frontend side SEND JSON to this backend,,,
+    //this backend then compares the JSON REQ with the correct answers
+    //THEN the backend calculates and returns the score to the frontend
+    //THEN the frontend displays the score to the user
+
+    const userAnswers = req.body;
+    const quizId = req.body.quizId;
+    const userId = req.user.id;
+
+    const quizMarks = 0;
+    const totalQuestions = 0;
+
+    const selectQuiz = 'SELECT * FROM quizzes where id = $1';
+    const quizResult = await db.query(selectQuiz, [quizId]);
+
+    if (quizResult.rows.length > 0) {
+        const quiz = quizResult.rows[0];
+        const questions = quiz.questions;
+
+        for (let i = 0; i < questions.length; i++) {
+            const question = questions[i];
+            const correctAnswer = question.correctAnswer;
+            const userAnswer = userAnswers[i];
+
+            if (correctAnswer === userAnswer) {
+                quizMarks++;
+            }
+            totalQuestions++;
+        }
+    }
+
+    const quizScore = (quizMarks / totalQuestions) * 100;
+
+    const submitQuery = 'INSERT INTO quizzes(quizScore) VALUES ($1) RETURNING *;';
+    const submitValues = [quizScore];
+
+    const dbResponseSubmit = await db.query(submitQuery, submitValues);
+
+    try {
+        res.json({
+            error: false,
+            message: 'Quiz submitted successfully.',
+            quizScore: quizScore,
+            totalQuestions: totalQuestions,
+            scorePercentage: scorePercentage,
+            })
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        res.status(500).send({ message: 'Error submitting quiz' });
+    };
+}
+
+//NEED TO ADD USER ID [SO IMPT!!! NEEDA FIND WHAT TYPE IS USERID IN SEANS DB] TO THE QUIZZES DATABASE, THEN the database will just store USERID as another column

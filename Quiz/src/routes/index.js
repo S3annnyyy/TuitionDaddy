@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from "multer";
 import { generateQuizHandler, retrieveQuizzesHandler, openQuiz } from '../controllers/quizController.js';
+import { submitQuizHandler } from '../libs/submitQuiz.js';
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage });
@@ -20,6 +21,8 @@ function setupRoutes(app) {
     app.get("/retrieve-quizzes", retrieveQuizzesHandler);
     //open 1 quiz
     app.get("/quiz/:id", openQuiz);
+    //submit quiz
+    app.get('/submit-quiz', submitQuizHandler);
 }
 
 export default {
