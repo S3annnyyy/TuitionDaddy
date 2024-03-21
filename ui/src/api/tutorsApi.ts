@@ -20,7 +20,7 @@ export const SearchProfiles = async (search: string) => {
     }
 };
 
-export const TutorProfileById = async (tutorid: string) => {
+export const TutorProfileById = async (tutorid: number) => {
     try {
         const response = await axios.get(`http://localhost:5116/Tutor/${tutorid}`);
         return response.data;
@@ -30,7 +30,7 @@ export const TutorProfileById = async (tutorid: string) => {
     }
 }
 
-export const TutorPriceByTutor = async (tutorid: string) => {
+export const TutorPriceByTutor = async (tutorid: number) => {
     try {
         const response = await axios.get(`http://localhost:5116/Tutor/price/${tutorid}`);
         return response.data;
@@ -40,9 +40,19 @@ export const TutorPriceByTutor = async (tutorid: string) => {
     }
 }
 
-export const AvailableTutorSlotByTutor = async (tutorid: string) => {
+export const AvailableTutorSlotByTutor = async (tutorid: number) => {
     try {
         const response = await axios.get(`http://localhost:5116/Tutor/slots/available/${tutorid}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tutor:', error);
+        throw error;
+    }
+}
+
+export const GetTutorSlot = async (slotid: string) => {
+    try {
+        const response = await axios.get(`http://localhost:5116/Tutor/slots/${slotid}`);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutor:', error);

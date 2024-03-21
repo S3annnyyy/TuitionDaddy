@@ -53,9 +53,7 @@ const Tutors = () => {
                             <br /> 
                             <p>
                                 <span className="flex font">
-                                    <FaBook/> &nbsp; Subjects
-                                </span>
-                                <span className="font-light">
+                                    <FaBook/> &nbsp;
                                     {profile.subjectlevel.map((subject, index) => 
                                         index === profile.subjectlevel.length-1 ? subject : subject + ", "
                                     )}

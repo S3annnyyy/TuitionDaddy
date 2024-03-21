@@ -6,7 +6,7 @@ import { FaBook, FaStreetView, FaCalendarAlt, FaMoneyCheckAlt } from "react-icon
 import { useNavigate } from "react-router";
 
 const Tutor = () => {
-    const tutorid = useParams().tutorid ?? '';
+    const tutorid = Number(useParams().tutorid);
     const [profile, setProfile] = useState<TutorProfile>();
     const [price, setPrice] = useState<TutorPrice[]>([]);
     const [slots, setSlots] = useState<TutorSlot[]>([])
@@ -123,7 +123,6 @@ const Tutor = () => {
                     }
                     {activeTab === "Schedule" &&
                         <div>
-
                         {slots?.map((slot) => (
                             <div key={slot.slotid} className="p-0 mx-auto max-w-screen-xl">
                                 <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 md:p-12 mb-8">
@@ -144,17 +143,18 @@ const Tutor = () => {
                                         hour12: true
                                     })}
                                 </h1>
-                                    <span className="text-lg font-normal text-gray-500 dark:text-gray-400 mb-6">Duration: {slot.duration}h</span>
-                                    <span className="flex justify-end">
-                                        <div
-                                            className="inline-flex justify-end items-center py-2.5 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
-                                        >
-                                            Book Slot
-                                            <svg className="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                            </svg>
-                                        </div>
-                                    </span>
+                                <span className="text-lg font-normal text-gray-500 dark:text-gray-400 mb-6">Duration: {slot.duration}h</span>
+                                <span className="flex justify-end">
+                                    <div
+                                        onClick={() => navigate(`/tutors/payment/${slot.slotid}`)}
+                                        className="inline-flex justify-end items-center py-2.5 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+                                    >
+                                        Book Slot
+                                        <svg className="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                        </svg>
+                                    </div>
+                                </span>
                                 </div>
                             </div>
                             ))
