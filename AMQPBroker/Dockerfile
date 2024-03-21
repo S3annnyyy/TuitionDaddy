@@ -1,24 +1,18 @@
-FROM python:3-slim
+# Use RabbitMQ image with management plugin
+FROM rabbitmq:3-management
 
-# Set the working directory inside the container
-WORKDIR /usr/src/app
+# Set hostname
+ENV HOSTNAME="localhost"
 
-# Copy the requirements.txt file into the container
-COPY requirements.txt ./
+# Expose ports
+EXPOSE 5672 15672
 
-# Install Python dependencies
-RUN python -m pip install --no-cache-dir -r requirements.txt
+# Copy configuration files
+COPY rabbitmq.config /etc/rabbitmq/rabbitmq.config
+COPY rabbitmq_definitions.json /etc/rabbitmq/rabbitmq_definitions.json
 
-# Copy all files from the current directory into the container
-COPY . .
+# Define volumes
+VOLUME ["/var/lib/rabbitmq"]
 
-# Set environment variables from .env file
-COPY .env ./
-
-# Set up any other necessary configurations or dependencies
-
-# Expose any necessary ports (if needed)
-# EXPOSE <port>
-
-# Define the command to run your notification microservice
-CMD [ "python", "amqp_setup.py" ]
+# Restart policy
+CMD ["rabbitmq-server"]
