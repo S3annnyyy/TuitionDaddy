@@ -48,6 +48,8 @@ func main() {
 	r.GET("/userinfo", middleware.RequireAuth, controllers.RetrieveUserInfo)
 	r.GET("/validate", middleware.RequireAuth, controllers.Validate)
 	r.GET("/user/paymentdetails", controllers.RetrieveUserPaymentDetails)
+	r.POST("/users/:userID/resource-links", controllers.StoreResourceLinks)
+	r.GET("/users/:userID/resource-links", controllers.RetrieveResourceLinks)
 
 	r.Run() // listen and serve on 0.0.0.0:3000
 }

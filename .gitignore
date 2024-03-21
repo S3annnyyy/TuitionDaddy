@@ -1,12 +1,13 @@
 **/__pycache__
 **/*.exe
 **/*.exe~
-Auth/.env
-go.work.sum
+**/.env
 Tutor/bin
 Tutor/obj
 Tutor/appsettings.json
 gpt/node_modules
 gpt/files
 **/.env
-go.work.sum
+go.*
+Tutor/bin/Debug/net8.0/Tutor.exe
+Tutor/bin/Debug/net8.0/Tutor.dll

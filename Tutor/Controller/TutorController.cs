@@ -24,8 +24,8 @@ namespace Tutor.Controllers
         public async Task<IActionResult> CreateTutorProfile(TutorProfile profile)
         {
             string query = @"
-                INSERT into tutorProfile(tutorid, description, experience, subjectLevel, photoLink)
-                values(@tutorid, @description, @experience, @subjectLevel, @photoLink)";
+                INSERT into tutorProfile(tutorid, description, experience, subjectLevel, photoLink, name)
+                values(@tutorid, @description, @experience, @subjectLevel, @photoLink, @name)";
             string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -36,7 +36,8 @@ namespace Tutor.Controllers
                 command.Parameters.AddWithValue("@description", profile.Description);
                 command.Parameters.AddWithValue("@experience", profile.Experience);
                 command.Parameters.AddWithValue("@subjectLevel", profile.SubjectLevel);
-                command.Parameters.AddWithValue("@subjectLevel", profile.PhotoLink);
+                command.Parameters.AddWithValue("@photoLink", profile.PhotoLink);
+                command.Parameters.AddWithValue("@name", profile.Name);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected == 0)
                 {
@@ -58,6 +59,7 @@ namespace Tutor.Controllers
             string query = @"
                 UPDATE tutorProfile
                 SET
+                    name = @name
                     description = @description,
                     experience = @experience,
                     subjectLevel = @subjectLevel,
@@ -73,7 +75,8 @@ namespace Tutor.Controllers
                 command.Parameters.AddWithValue("@description", profile.Description);
                 command.Parameters.AddWithValue("@experience", profile.Experience);
                 command.Parameters.AddWithValue("@subjectLevel", profile.SubjectLevel);
-                command.Parameters.AddWithValue("@subjectLevel", profile.PhotoLink);
+                command.Parameters.AddWithValue("@photoLink", profile.PhotoLink);
+                command.Parameters.AddWithValue("@name", profile.Name);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
                 if (rowsAffected == 0)
                 {

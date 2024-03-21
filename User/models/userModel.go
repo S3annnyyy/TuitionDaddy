@@ -14,6 +14,11 @@ import (
 // 	DeletedAt gorm.DeletedAt `gorm:"index"`
 //   }
 
+type ResourceLinks struct {
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}
+
 type User struct {
 	gorm.Model
 	Email           string `gorm:"unique"`
@@ -24,4 +29,5 @@ type User struct {
 	EducationLevel  string
 	Transcript      string
 	StripeAccountID string
+	ResourceLinks   string `gorm:"type:jsonb"`
 }

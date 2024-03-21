@@ -1,4 +1,4 @@
 import app from "./app.js";
-const PORT = 8000;
+const PORT = 2000;
 
 app.startServer(PORT);

@@ -44,8 +44,31 @@ export interface TutorPrice {
 
 export interface TutorSlot {
     slotid: string,
-    tutorid: number, 
+    tutorid: number,
     students: number | null,
     startat: Date,
     duration: number
+}
+
+export interface formattedResource {
+    resourceID: string;
+    resourceName: string;
+    resourcePrice: number;
+}
+  
+export interface formattedResult {
+    [sellerID: number]: {
+        sellerName: string;
+        totalCost: number;
+        resources: formattedResource[];
+    };
+}
+
+export interface AccordionItemProps {
+    title: string;
+    pdfUrl: string;
+}
+
+export interface urlLinksDataType {
+    [fileName: string]: string;
 }
