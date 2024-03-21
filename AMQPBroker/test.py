@@ -11,7 +11,6 @@ import json
 import amqp_connection
 
 from dotenv import load_dotenv
-import os
 
 # Manually load the .env file
 load_dotenv()
@@ -20,8 +19,8 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-exchangename = environ.get('EXCHANGENAME') #order_topic
-exchangetype = environ.get('EXCHANGETYPE') #topic 
+exchangename = environ.get('EXCHANGENAME') 
+exchangetype = environ.get('EXCHANGETYPE') 
 
 #create a connection and a channel to the broker to publish messages to activity_log, error queues
 connection = amqp_connection.create_connection() 
