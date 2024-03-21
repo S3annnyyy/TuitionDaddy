@@ -145,7 +145,7 @@ export async function openQuiz(req, res) {
 
     try {
         //get from database
-        const selectQuiz = 'SELECT * FROM quizzes where quizId = $1';
+        const selectQuiz = 'SELECT * FROM quizzes where id = $1';
         const quizResult = await db.query(selectQuiz, [quizId]);
 
         if (quizResult.rows.length > 0) {
@@ -166,7 +166,7 @@ async function uploadQuizToDatabase(quizObject, quizTitle) {
 
         const quizId = short.generate();
 
-        const quizQuery = 'INSERT INTO quizzes(quizId, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
+        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
         const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions)];
 
         const dbResponseQuiz = await db.query(quizQuery, quizValues);
