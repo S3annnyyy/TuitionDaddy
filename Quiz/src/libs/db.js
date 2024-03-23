@@ -8,8 +8,6 @@ const CLIENT_CONFIG = {
     connectionString: process.env.DB_URI,
 };
 
-console.log(CLIENT_CONFIG);
-
 async function verifyConnection() {
     try {
         const client = new Client(CLIENT_CONFIG);

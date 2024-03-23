@@ -142,6 +142,37 @@ namespace Tutor.Controllers
                 conn.Close();
             }
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> GetTutorProfilesBySearch(string search)
+        {
+            string query = @"
+                SELECT * 
+                FROM tutorProfile
+                WHERE description ILIKE '%' || @search || '%'
+                OR experience ILIKE '%' || @search || '%'
+                OR EXISTS (
+                    SELECT *
+                    FROM unnest(subjectlevel) as subject
+                    WHERE subject ILIKE '%' || @search || '%')";
+            DataTable table = new();
+            string connectionString = _configuration.GetConnectionString("Default");
+            NpgsqlDataReader myReader;
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+            try
+            {
+                NpgsqlCommand command = new NpgsqlCommand(query, conn);
+                command.Parameters.AddWithValue("@search", search);
+                myReader = await command.ExecuteReaderAsync();
+                table.Load(myReader);
+                myReader.Close();
+                return Ok(table);
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
         [HttpPost("price")]
         public async Task<IActionResult> CreateTutorPrices(TutorPrice price)
         {
@@ -261,7 +292,36 @@ namespace Tutor.Controllers
             string query = @"
                 SELECT * 
                 FROM tutorSlot
-                WHERE tutorId = @tutorId";
+                WHERE tutorId = @tutorId
+                ORDER BY startAt";
+            DataTable table = new();
+            string connectionString = _configuration.GetConnectionString("Default");
+            NpgsqlDataReader myReader;
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+            try
+            {
+                NpgsqlCommand command = new NpgsqlCommand(query, conn);
+                command.Parameters.AddWithValue("@tutorid", TutorId);
+                myReader = await command.ExecuteReaderAsync();
+                table.Load(myReader);
+                myReader.Close();
+                return Ok(table);
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        [HttpGet("slots/available/{TutorId}")]
+        public async Task<IActionResult> GetAllAvailableTutorSlots(int TutorId)
+        {
+            string query = @"
+                SELECT * 
+                FROM tutorSlot
+                WHERE tutorId = @tutorId
+                AND students IS NULL
+                ORDER BY startAt";
             DataTable table = new();
             string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
@@ -282,7 +342,7 @@ namespace Tutor.Controllers
             }
         }
         [HttpGet("slots/{SlotId}")]
-        public async Task<IActionResult> GetTutorSlotBySlotId(int SlotId)
+        public async Task<IActionResult> GetTutorSlotBySlotId(Guid SlotId)
         {
             string query = @"
                 SELECT * 
@@ -311,8 +371,8 @@ namespace Tutor.Controllers
         public async Task<IActionResult> CreateTutorSlot(TutorSlot slot)
         {
             string query = @"
-                INSERT into tutorSlot(slotid, tutorid, students, capacity, startAt, duration)
-                VALUES (@slotid, @tutorid, @students, @capacity, @startAt, @duration)";
+                INSERT into tutorSlot(slotid, tutorid, students, startAt, duration)
+                VALUES (@slotid, @tutorid, @students, @startAt, @duration)";
 
             string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
@@ -323,7 +383,6 @@ namespace Tutor.Controllers
                 command.Parameters.AddWithValue("@slotid", slot.SlotId);
                 command.Parameters.AddWithValue("@tutorid", slot.TutorId);
                 command.Parameters.AddWithValue("@students", slot.Students);
-                command.Parameters.AddWithValue("@capacity", slot.Capacity);
                 command.Parameters.AddWithValue("@startat", slot.StartAt);
                 command.Parameters.AddWithValue("@duration", slot.Duration);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -341,9 +400,7 @@ namespace Tutor.Controllers
                 UPDATE tutorSlot
                 SET
                     slotid = @slotid,
-                    tutorid = @tutorid,
                     students = @students,
-                    capacity = @capacity,
                     startAt = @startAt,
                     duration = @duration
                 WHERE tutorid = @tutorid";
@@ -356,7 +413,6 @@ namespace Tutor.Controllers
                 command.Parameters.AddWithValue("@slotid", slot.SlotId);
                 command.Parameters.AddWithValue("@tutorid", slot.TutorId);
                 command.Parameters.AddWithValue("@students", slot.Students);
-                command.Parameters.AddWithValue("@capacity", slot.Capacity);
                 command.Parameters.AddWithValue("@startat", slot.StartAt);
                 command.Parameters.AddWithValue("@duration", slot.Duration);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
