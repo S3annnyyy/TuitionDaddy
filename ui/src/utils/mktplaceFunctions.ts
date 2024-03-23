@@ -1,35 +1,34 @@
 import axios from 'axios'
 import { resourceDataType, formattedResult, formattedResource, urlLinksDataType } from './types';
 
-export const getAllResources = async (setPrimaryData:any, setNoData:any) => {
+export const getAllResources = async (setPrimaryData:React.Dispatch<React.SetStateAction<resourceDataType[]>>, setNoData:any) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/all`
     try {
         const response = await axios.get(URL);
-        setNoData(false)   
-        setPrimaryData(response.data.data)
-        console.log(response.data.data)
+        setNoData(false);
+        console.log(response.data);
+        setPrimaryData(response.data.data);
+        console.log(response.data);
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 
-export const getResourcesByLevel = async (setPrimaryData:any, level:string) => {
+export const getResourcesByLevel = async (setPrimaryData:React.Dispatch<React.SetStateAction<resourceDataType[]>>, level:string) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/level/${level}`
-    try {
-        const response = await axios.get(URL);   
-        setPrimaryData(response.data.data)
-        console.log(response.data.data)
-    } catch (error) {        
-        throw error; 
-    }
+    const response = await axios.get(URL);  
+    console.log(response.data);
+    setPrimaryData(response.data.data);
+    console.log(response.data);
+
 }
 
-export const getResourceByID = async (resourceID: string, setResourceData: any) => {
+export const getResourceByID = async (resourceID: string, setResourceData: React.Dispatch<React.SetStateAction<resourceDataType[]>>) => {
     const URL = `${import.meta.env.VITE_RESOURCE_ENDPOINT}/${resourceID}`
     try {
         const response = await axios.get(URL);
         setResourceData(response.data.data)
-        console.log(response.data.data)        
+        console.log(response.data)        
     } catch (error) {
         console.error('Error fetching data:', error);
     }
