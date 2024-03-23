@@ -84,17 +84,16 @@ def processResourcePurchase(sellerID:int, price: float, resources: list, payment
         urlLinks[resource['resourceName']] = url
     print(urlLinks)
 
-    print("\n --------INVOKING Notification queue--------")
+    print("\n --------INVOKING Notification queue--------")    
     if connection is None or channel is None:
         print("AMQP connection not established. Skipping notification.")
         return urlLinks
-    try:        
+    try:
+        count = len(resource)        
         message_tele = {
-            "chat_id": "1492516288", 
-            "scheduled_date": "2024-03-09T10:00:00", 
-            "telegram_message": "Good afternoon kaelan! Wishing you a bright and insightful afternoon! Your intellect shines brightly, illuminating every conversation and idea you engage with. Keep inspiring us with your brilliance and creativity. Have a wonderful day ahead",
+            "chat_id": "1492516288",             
+            "telegram_message": f"[REF ID]: {paymentMethodID}\n\nHello! Thanks for purchasing {count} study resources with us! Your resources are now available for viewing!",
         }
-
         message_json = json.dumps(message_tele)
         channel.basic_publish(exchange=exchangename, routing_key="order.notification", body=message_json, properties=pika.BasicProperties(delivery_mode = 2)) 
     except Exception as e:       
