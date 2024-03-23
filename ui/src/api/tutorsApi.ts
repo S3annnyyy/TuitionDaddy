@@ -1,4 +1,15 @@
 import axios from 'axios';
+import { TutorProfile } from '../utils/types';
+
+export const CreateTutorProfile = async (tutorProfile: TutorProfile) => {
+    try {
+        const response = await axios.post("http://localhost:5116/Tutor", tutorProfile)
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tutors:', error);
+        throw error;
+    }
+}
 
 export const TutorProfiles = async () => {
     try {
