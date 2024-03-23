@@ -17,6 +17,19 @@ services:
       - amqpbroker
     ports:
       - "5100:5100"
+    environment:
+      - HOSTNAME=amqpbroker
+      - PORT=5672
+      - EXCHANGENAME=direct_logs
+      - EXCHANGETYPE=topic
+      - A_QUEUE_NAME=Activity_Log
+      - E_QUEUE_NAME=Error
+      - N_QUEUE_NAME=Notification
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_USERNAME=tuitiondaddyesd@gmail.com
     networks:
       - esd
 
@@ -42,6 +55,18 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    environment:
+      - HOSTNAME=amqpbroker
+      - EXCHANGENAME=direct_logs
+      - EXCHANGETYPE=topic
+      - A_QUEUE_NAME=Activity_Log
+      - E_QUEUE_NAME=Error
+      - N_QUEUE_NAME=Notification
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_USERNAME=tuitiondaddyesd@gmail.com
     networks:
       - esd
       
@@ -52,10 +77,6 @@ services:
   # error:
   #   build: ./Error
   #   # Add any necessary configuration for Error
-
-  # notification:
-  #   build: ./Notification
-  #   # Add any necessary configuration for Notification
 
   # quiz:
   #   build: ./Quiz

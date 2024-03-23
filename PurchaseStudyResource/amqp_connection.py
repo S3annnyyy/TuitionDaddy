@@ -24,7 +24,7 @@ def create_connection(max_retries=12, retry_interval=5):
             print('amqp_connection: Trying connection')
             # connect to the broker
             connection = pika.BlockingConnection(pika.ConnectionParameters
-                                (host='amqpbroker', port=port,
+                                (host=hostname, port=port,
                                 heartbeat=3600, blocked_connection_timeout=3600)) # these parameters to prolong the expiration time (in seconds) of the connection
                 # Note about AMQP connection: various network firewalls, filters, gateways (e.g., SMU VPN on wifi), may hinder the connections;
                 # If "pika.exceptions.AMQPConnectionError" happens, may try again after disconnecting the wifi and/or disabling firewalls.

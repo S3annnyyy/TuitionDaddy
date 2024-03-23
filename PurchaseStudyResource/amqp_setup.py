@@ -23,7 +23,7 @@ async def create_connection(max_retries=12, retry_interval=5):
             print('amqp_connection: Trying connection')
             # connect to the broker
             connection = await aio_pika.connect_robust(
-                host='amqpbroker',
+                host=RABBITMQ_HOST,
                 port=RABBITMQ_PORT,
                 login=RABBITMQ_USERNAME,
                 password=RABBITMQ_PASSWORD
