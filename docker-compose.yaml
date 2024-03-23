@@ -24,9 +24,7 @@ services:
       - EXCHANGETYPE=topic
       - A_QUEUE_NAME=Activity_Log
       - E_QUEUE_NAME=Error
-      - N_QUEUE_NAME=Notification
-      - RABBITMQ_USERNAME=guest
-      - RABBITMQ_PASSWORD=guest
+      - N_QUEUE_NAME=Notification   
       - EMAIL_HOST=smtp.gmail.com
       - EMAIL_PORT=587
       - EMAIL_USERNAME=tuitiondaddyesd@gmail.com
@@ -61,9 +59,7 @@ services:
       - EXCHANGETYPE=topic
       - A_QUEUE_NAME=Activity_Log
       - E_QUEUE_NAME=Error
-      - N_QUEUE_NAME=Notification
-      - RABBITMQ_USERNAME=guest
-      - RABBITMQ_PASSWORD=guest
+      - N_QUEUE_NAME=Notification  
       - EMAIL_HOST=smtp.gmail.com
       - EMAIL_PORT=587
       - EMAIL_USERNAME=tuitiondaddyesd@gmail.com
