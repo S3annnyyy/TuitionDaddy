@@ -3,7 +3,8 @@ import { TutorProfile } from '../utils/types';
 
 export const CreateTutorProfile = async (tutorProfile: TutorProfile) => {
     try {
-        const response = await axios.post("http://localhost:5116/Tutor", tutorProfile)
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}`;
+        const response = await axios.post(URL, tutorProfile);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutors:', error);
@@ -13,7 +14,8 @@ export const CreateTutorProfile = async (tutorProfile: TutorProfile) => {
 
 export const TutorProfiles = async () => {
     try {
-        const response = await axios.get("http://localhost:5116/Tutor/all"); 
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/all`;
+        const response = await axios.get(URL); 
         return response.data;
     } catch (error) {
         console.error('Error fetching tutors:', error);
@@ -23,7 +25,8 @@ export const TutorProfiles = async () => {
 
 export const SearchProfiles = async (search: string) => {
     try {
-        const response = await axios.get(`http://localhost:5116/Tutor/search?search=${search}`); 
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/search?search=${search}`;
+        const response = await axios.get(URL); 
         return response.data;
     } catch (error) {
         console.error('Error fetching tutors:', error);
@@ -33,7 +36,8 @@ export const SearchProfiles = async (search: string) => {
 
 export const TutorProfileById = async (tutorid: number) => {
     try {
-        const response = await axios.get(`http://localhost:5116/Tutor/${tutorid}`);
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/${tutorid}`;
+        const response = await axios.get(URL);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutor:', error);
@@ -43,7 +47,8 @@ export const TutorProfileById = async (tutorid: number) => {
 
 export const TutorPriceByTutor = async (tutorid: number) => {
     try {
-        const response = await axios.get(`http://localhost:5116/Tutor/price/${tutorid}`);
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/price/${tutorid}`;
+        const response = await axios.get(URL);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutor:', error);
@@ -53,7 +58,8 @@ export const TutorPriceByTutor = async (tutorid: number) => {
 
 export const AvailableTutorSlotByTutor = async (tutorid: number) => {
     try {
-        const response = await axios.get(`http://localhost:5116/Tutor/slots/available/${tutorid}`);
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/slots/available/${tutorid}`;
+        const response = await axios.get(URL);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutor:', error);
@@ -63,7 +69,8 @@ export const AvailableTutorSlotByTutor = async (tutorid: number) => {
 
 export const GetTutorSlot = async (slotid: string) => {
     try {
-        const response = await axios.get(`http://localhost:5116/Tutor/slots/${slotid}`);
+        const URL = `${import.meta.env.VITE_TUTOR_ENDPOINT}/slots/${slotid}`;
+        const response = await axios.get(URL);
         return response.data;
     } catch (error) {
         console.error('Error fetching tutor:', error);
