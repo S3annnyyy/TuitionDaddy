@@ -12,8 +12,11 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
+# Set environment variables from .env file
+COPY .env ./
+
 # Expose the port your application runs on (if applicable)
 EXPOSE 5100
 
-# Set the entry point
-CMD ["python", "app.py"]
+# Run the Flask application and the notification consumer
+CMD ["sh", "-c", "python app.py & python notification.py & python webhook.py"]

@@ -1,38 +1,50 @@
 version: '3.8'
 
+networks:
+  esd:
+
 services:
   payment:
-    build: ./Payment
-    image: lactrodectus/payment_microservice:1.0
+    build: ./Payment    
     restart: always
     ports:
       - "8080:8080"
 
   purchasestudyresource:
-    build: ./PurchaseStudyResource
-    image: lactrodectus/purchasestudyresource_complexms:1.0
+    build: ./PurchaseStudyResource    
     restart: always
+    depends_on:
+      - amqpbroker
     ports:
       - "5100:5100"
+    networks:
+      - esd
 
   studyresource:
     build: ./StudyResource
-    image: lactrodectus/studyresource_microservice:1.0
     restart: always
     ports:
       - "8000:8000"
+    networks:
+      - esd
 
   user:
     build: ./User
-    image: lactrodectus/user_microservice:1.0
-    restart: always  
+    restart: always
     ports:
       - "3000:3000"
+    networks:
+      - esd
 
-  # amqpbroker:
-  #   build: ./AMQPBroker
-  #   # Add any necessary configuration for AMQPBroker
-
+  amqpbroker:
+    build: ./AMQPBroker
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - esd
+      
   # chat:
   #   build: ./Chat
   #   # Add any necessary configuration for Chat
@@ -52,7 +64,7 @@ services:
   # streaming:
   #   build: ./Streaming
   #   # Add any necessary configuration for Streaming
-  
+
   # tutor:
   #   build: ./Tutor
   #   # Add any necessary configuration for Tutor  
