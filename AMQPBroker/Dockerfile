@@ -1,9 +1,6 @@
 # Use RabbitMQ image with management plugin
 FROM rabbitmq:3-management
 
-# Set hostname
-ENV HOSTNAME="localhost"
-
 # Expose ports
 EXPOSE 5672 15672
 

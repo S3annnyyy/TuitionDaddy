@@ -1,14 +1,25 @@
 import os
+import json
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
-from invokes import invoke_http 
-
+from invokes import invoke_http
+import amqp_connection
+import pika
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+exchangename = os.environ.get('EXCHANGENAME') 
+exchangetype = os.environ.get('EXCHANGETYPE') 
+
+try:
+    connection = amqp_connection.create_connection() 
+    channel = connection.channel()
+except Exception as e:
+    print(f"Error establishing connection to RabbitMQ: {e}")
+    channel = None  # Set channel to None if connection fails
 
 def jsonResponse(rescode, **kwargs):
     res_data = {key: value for key, value in kwargs.items()}
@@ -73,8 +84,20 @@ def processResourcePurchase(sellerID:int, price: float, resources: list, payment
         urlLinks[resource['resourceName']] = url
     print(urlLinks)
 
-    print("\n --------INVOKING Error & Notif microservice via AMPQ--------")
-    # TODO
+    print("\n --------INVOKING Notification queue--------")    
+    if connection is None or channel is None:
+        print("AMQP connection not established. Skipping notification.")
+        return urlLinks
+    try:
+        count = len(resource)        
+        message_tele = {
+            "chat_id": "1492516288",             
+            "telegram_message": f"[REF ID]: {paymentMethodID}\n\nHello! Thanks for purchasing {count} study resources with us! Your resources are now available for viewing!",
+        }
+        message_json = json.dumps(message_tele)
+        channel.basic_publish(exchange=exchangename, routing_key="order.notification", body=message_json, properties=pika.BasicProperties(delivery_mode = 2)) 
+    except Exception as e:       
+        print(f"Purchase study resource Notification queue invocation error ==> {e}")
 
     return urlLinks
 
