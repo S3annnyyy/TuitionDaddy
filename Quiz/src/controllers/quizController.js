@@ -16,6 +16,8 @@ const client = new S3Client({ region: process.env.AWS_DEFAULT_REGION });
 
 export async function generateQuizHandler(req, res) {
     try {
+        const userId = req.user.sub;
+
         const files = req.files;
         const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
         const formFields = req.body;
@@ -73,21 +75,23 @@ export async function generateQuizHandler(req, res) {
                 const quizTopics = quizObject.topics;
                 const quizQuestions = quizObject.questions;
 
-                await uploadQuizToDatabase(quizObject, quizTitle);
+                await uploadQuizToDatabase(quizObject, quizTitle, userId);
 
                 res.json({
-                    error: false,
+                    success: true,
                     message: "PDF processed and quiz generated successfully. Quiz uploaded into database as well.",
-                    quizTopics: quizTopics,
-                    quizQuestions: quizQuestions,
-                    dbData: dbResponse,
+                    data: {
+                        quizTopics: quizTopics,
+                        quizQuestions: quizQuestions,
+                        dbData: dbResponse,
+                    }
                 });
             } catch (textractError) {
-                console.error('Error processing PDF and generating quiz:', textractError);
                 if (!res.headersSent) {
                     res.status(500).send({
-                        error: true,
+                        success: false,
                         message: 'Error processing PDF and generating quiz.',
+                        errorDetails: textractError,
                     });
                 }
             }
@@ -95,7 +99,7 @@ export async function generateQuizHandler(req, res) {
         }
 
         res.json({
-            error: false,
+            success: true,
             message: `${filetype} uploaded successfully and saved to database.`,
             url: fileLocation, 
             formFields: {
@@ -109,8 +113,9 @@ export async function generateQuizHandler(req, res) {
         console.error('Error uploading file or in database operation:', error); 
         if (!res.headersSent) {
             res.status(500).send({ 
-                error: true, 
+                success: false, 
                 message: 'Error uploading file.', 
+                errorDetails: error,
             }); 
         }
     }
@@ -118,30 +123,33 @@ export async function generateQuizHandler(req, res) {
 
 export async function retrieveQuizzesHandler(req, res) {
     try {
-        const userId = req.user.id;
+        const userId = req.user.sub;
 
-        const retrieveQuery = 'SELECT * FROM quizzes where userID = $1';
+        const retrieveQuery = 'SELECT * FROM quizzes where user_id = $1';
         const userQuizValues = [userId];
+
         const result = await db.query(retrieveQuery, userQuizValues);
 
         if (result) {
             if (result.rows.length > 0) {
                 res.json({
+                    success: true,
                     quizAvailable: true,
                     quizzes: result.rows,
                 });
             } else {
                 res.json({
+                    success: true,
                     quizAvailable: false,
                     message: 'No quizzes found for the user',
                 })
             }
         }
     } catch (error) {
-        console.error('Error fetching quizzes:', error);
         res.status(500).send({
-            error: true,
+            success: false,
             message: 'Error fetching quizzes',
+            errorDetails: error,
         })
     }
 }
@@ -157,15 +165,21 @@ export async function openQuiz(req, res) {
         if (quizResult.rows.length > 0) {
             res.json(result.rows[0]);
         } else {
-            res.status(404).send({ message: 'Quiz not found' });
+            res.status(404).json({
+                success: false,
+                message: 'Quiz not found'
+            });
         }
     } catch (error) {
-        console.error('Error retrieving a quiz from database', error);
-        res.status(500).send({ message: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'An internal server error occurred while retrieving the quiz.',
+            errorDetails: error.message,
+        });
     }
 }
 
-export async function uploadQuizToDatabase(quizObject, quizTitle) {
+export async function uploadQuizToDatabase(quizObject, quizTitle, userId) {
     try {
         const topics = quizObject.topics;
         const questions = quizObject.questions;
@@ -173,8 +187,8 @@ export async function uploadQuizToDatabase(quizObject, quizTitle) {
         const quizId = short.generate();
 
         //and then this quizzes table will also have userID and the score but SCORE IS EMPTY INITIALLY FOR THIS FUNCTION
-        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
-        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions)];
+        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;';
+        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions), userId];
 
         const dbResponseQuiz = await db.query(quizQuery, quizValues);
 
@@ -191,51 +205,58 @@ export async function submitQuizHandler(req, res) {
     //THEN the backend calculates and returns the score to the frontend
     //THEN the frontend displays the score to the user
 
-    const userAnswers = req.body;
-    const quizId = req.body.quizId;
-    const userId = req.user.id;
-
-    const quizMarks = 0;
-    const totalQuestions = 0;
-
-    const selectQuiz = 'SELECT * FROM quizzes where id = $1';
-    const quizResult = await db.query(selectQuiz, [quizId]);
-
-    if (quizResult.rows.length > 0) {
-        const quiz = quizResult.rows[0];
-        const questions = quiz.questions;
-
-        for (let i = 0; i < questions.length; i++) {
-            const question = questions[i];
-            const correctAnswer = question.correctAnswer;
-            const userAnswer = userAnswers[i];
-
-            if (correctAnswer === userAnswer) {
-                quizMarks++;
-            }
-            totalQuestions++;
-        }
-    }
-
-    const quizScore = (quizMarks / totalQuestions) * 100;
-
-    const submitQuery = 'INSERT INTO quizzes(quizScore) VALUES ($1) RETURNING *;';
-    const submitValues = [quizScore];
-
-    const dbResponseSubmit = await db.query(submitQuery, submitValues);
-
     try {
+        // Extract data from request body
+        const userAnswers = req.body.answers; //needa find out how the format from frontend to backend is for this
+        const quizId = req.body.quizId;
+
+        // Initialize variables to calculate score
+        let quizMarks = 0;
+        let totalQuestions = 0;
+
+        // Retrieve the specified quiz from the database
+        const selectQuiz = 'SELECT * FROM quizzes WHERE id = $1';
+        const quizResult = await db.query(selectQuiz, [quizId]);
+
+        if (quizResult.rows.length > 0) {
+            const quiz = quizResult.rows[0];
+            const questions = quiz.questions; //ensure that it is an array
+
+            // Compare each qn answers
+            for (const question of questions) {
+                const correctAnswer = question.correctAnswer;
+                const userAnswer = userAnswers[questions.indexOf(question)];
+                if (correctAnswer === userAnswer) {
+                    quizMarks++;
+                }
+                totalQuestions++;
+            };            
+        };
+
+        // Calculate quiz score
+        const quizScore = totalQuestions > 0 ? (quizMarks / totalQuestions) * 100 : 0;
+
+        // Insert the quiz score into the database
+        const submitQuery = 'INSERT INTO quizzes(quizScore) VALUES ($1) RETURNING *;';
+        const submitValues = [quizScore];
+        const dbResponseSubmit = await db.query(submitQuery, submitValues);
+
+        console.log(dbResponseSubmit);
+
         res.json({
-            error: false,
+            success: true,
             message: 'Quiz submitted successfully.',
             quizScore: quizScore,
             totalQuestions: totalQuestions,
-            scorePercentage: scorePercentage,
-            })
+            scorePercentage: quizScore, // Assuming scorePercentage is the same as quizScore
+        });
     } catch (error) {
+        // Log and respond to the error
         console.error('Error submitting quiz:', error);
-        res.status(500).send({ message: 'Error submitting quiz' });
-    };
+        res.status(500).send({
+            success: false, 
+            message: 'Error submitting quiz',
+            errorDetails: error,
+        });
+    }
 }
-
-//NEED TO ADD USER ID [SO IMPT!!! NEEDA FIND WHAT TYPE IS USERID IN SEANS DB] TO THE QUIZZES DATABASE, THEN the database will just store USERID as another column

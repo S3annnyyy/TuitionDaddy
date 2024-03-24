@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from "multer";
-import { generateQuizHandler, retrieveQuizzesHandler, openQuiz } from '../controllers/quizController.js';
-import { submitQuizHandler } from '../libs/submitQuiz.js';
+import { generateQuizHandler, retrieveQuizzesHandler, openQuiz, submitQuizHandler } from '../controllers/quizController.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const storage = multer.memoryStorage(); 
 const upload = multer({ storage: storage });
@@ -16,9 +16,9 @@ function setupRoutes(app) {
     ]);
 
     //upload pdf and get quiz
-    app.post('/generate-quiz', uploadPdfAndForm, generateQuizHandler);
+    app.post('/generate-quiz', [uploadPdfAndForm, authenticateToken], generateQuizHandler);
     //all quizzes
-    app.get("/retrieve-quizzes", retrieveQuizzesHandler);
+    app.get("/retrieve-quizzes", authenticateToken, retrieveQuizzesHandler);
     //open 1 quiz
     app.get("/quiz/:id", openQuiz);
     //submit quiz
