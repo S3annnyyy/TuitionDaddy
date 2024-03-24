@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: chat-app
+  labels:
+    app: chat-app
 spec:
   replicas: 1
   selector:
@@ -14,30 +16,18 @@ spec:
     spec:
       containers:
       - name: chat
-        image: chat-app:latest
+        image: epicness0022/tuitiondaddychat:latest
         ports:
         - containerPort: 3000
-        env:
-          - name: AMQP_HOST
-            value: rabbitmq # The service name of RabbitMQ in Kubernetes
-          - name: AMQP_PORT
-            value: "5672"
-          # Add other required environment variables here
-        # readinessProbe:
-        #   httpGet:
-        #     path: /api/health # Replace with an actual health check endpoint if you have one
-        #     port: 3000
-        #   initialDelaySeconds: 10
-        #   periodSeconds: 5
-        # livenessProbe:
-        #   httpGet:
-        #     path: /api/health # Replace with an actual health check endpoint if you have one
-        #     port: 3000
-        #   initialDelaySeconds: 15
-        #   periodSeconds: 20
-
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: my-config
+        - secretRef:
+            name: my-secret
+      imagePullSecrets:
+      - name: docker-secret
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -46,5 +36,29 @@ spec:
   selector:
     app: chat-app
   ports:
-    - port: 3000
+    - name: chat-port
+      protocol: TCP
+      port: 3000
       targetPort: 3000
+    - name: file-uploader-port
+      protocol: TCP
+      port: 3001
+      targetPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-app
+spec:
+  type: NodePort
+  selector:
+    app: chat-app
+  ports:
+    - name: chat-port
+      port: 3000
+      targetPort: 3000
+      nodePort: 30000
+    - name: file-uploader-port
+      port: 3001
+      targetPort: 3001
+      nodePort: 30001

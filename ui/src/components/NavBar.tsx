@@ -10,6 +10,8 @@ const navigation = [
   { name: "Tutors", ref: "/tutors" , active: false },
   { name: "Class", ref: "/class", active: false },
   { name: "Quiz", ref: "/quiz", active: false },
+  { name: "GPTCher", ref: "/gptcher", active: false },
+  { name: "Chat", ref: "/chat", active: false },
 ]
 
 const CustomNavLink = (props: { children: string, href: string }): JSX.Element => {

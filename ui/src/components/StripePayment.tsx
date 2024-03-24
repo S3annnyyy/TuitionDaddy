@@ -22,6 +22,7 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
     // Real-time validation errors from the card Element
     if (elements) {
       const card = elements.getElement(CardElement);
+      console.log("Elements are", elements);
       if (card) {
         card.on('change', (event) => {
           setError(event.error ? event.error.message : null);
@@ -60,17 +61,18 @@ const PaymentForm: React.FC<{ items: resourceDataType[] }> = ({ items }) => {
       setError(error.message || null);
       setDisabled(false);
     } else {
+      const paymentMethodId = paymentMethod.id;      
+      console.log(`PaymentMethod ID: ${paymentMethodId}, Name: ${buyerName}`)      
       
       // ROUTING PORTION
       if (location.pathname !== "/marketplace/user/cart") {
         // PAYMENT PORTION FOR EUNICE
-        // TODO     
+        // TODO  
+        console.log("payment success");
         
         
       } else {
         // PAYMENT PORTION FOR SEAN COMPLEX MS    
-        const paymentMethodId = paymentMethod.id;      
-        console.log(`PaymentMethod ID: ${paymentMethodId}, Name: ${buyerName}`)      
         // format data by sellerID
         const formattedItems = formatResources(items)
         console.log(formattedItems)

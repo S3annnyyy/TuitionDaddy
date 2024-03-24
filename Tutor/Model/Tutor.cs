@@ -27,8 +27,7 @@ namespace Tutor.Models
         [Key]
         public Guid SlotId { get; set; }
         public int TutorId { get; set; }
-        public List<int> Students { get; set; }
-        public int Capacity { get; set; }
+        public int Student { get; set; }
         public DateTime StartAt { get; set; }
         public int Duration { get; set; }
     }

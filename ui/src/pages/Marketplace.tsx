@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getAllResources, getResourcesByLevel, getCartCount } from '../utils/mktplaceFunctions'
 import { DocumentPlusIcon } from "@heroicons/react/24/outline"
 import { ShoppingBagIcon } from "@heroicons/react/24/solid"
+import { resourceDataType } from '../utils/types'
 
 const selection = [
   { name: "ALL", status: true },
@@ -36,7 +37,7 @@ const ItemCard = (props: {imgSrc: string, itemName: string, itemPrice: number, i
 const Marketplace = () => {
   const [category, setCategory] = useState<string>("all")
   const [activeBtnIndex, setActiveBtnIndex] = useState<number>(0)
-  const [primaryData, setPrimaryData] = useState<any[]>([]);
+  const [primaryData, setPrimaryData] = useState<resourceDataType[]>([]);
   const [noData, setNoData] = useState<boolean>(true);
   const [cartCount, setCount] =useState<number>(0);
   const navigate = useNavigate();
