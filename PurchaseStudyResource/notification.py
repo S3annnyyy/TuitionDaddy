@@ -3,7 +3,7 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
-import amqp_connection
+import amqp_setup
 import aiohttp
 from os import environ
 from email.mime.multipart import MIMEMultipart
@@ -85,7 +85,7 @@ async def send_telegram_message(chat_id, message):
 
 async def consume_queue():
     try:
-        connection = await amqp_connection.create_connection()
+        connection = await amqp_setup.create_connection()
         async with connection:
             channel = await connection.channel()
             queue = await channel.declare_queue(

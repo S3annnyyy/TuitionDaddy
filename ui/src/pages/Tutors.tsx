@@ -6,8 +6,9 @@ import { TutorProfile } from "../utils/types";
 import { FaBook } from "react-icons/fa";
 
 const Tutors = () => {
+    const [isTutor, setIsTutor] = useState(true);
     const [search, setSearch] = useState("");
-    const [Profiles, setProfiles] = useState<TutorProfile[]>([]);
+    const [profiles, setProfiles] = useState<TutorProfile[]>([]);
     const navigate = useNavigate();
 
     const handleSearchChange = (value: SetStateAction<string>) => {
@@ -33,13 +34,33 @@ const Tutors = () => {
             }
         }
         fetchData();
+        const userID = sessionStorage.getItem("userid");
+        if (userID) {
+            profiles.forEach(profile => {
+                if (profile?.tutorid == parseInt(userID)) {
+                    setIsTutor(true);
+                }
+            });
+        }
     }, [])
 
     return (
         <div>
-            <SearchBar onSearchChange={handleSearchChange} />
+            <div className="">
+                {
+                    isTutor && 
+                    <button
+                        onClick={() => navigate(`/`)}
+                        type="button"
+                        className="float-right mr-7 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                    >
+                        Edit your profile
+                    </button>
+                }
+                <SearchBar onSearchChange={handleSearchChange} />
+            </div>
             {
-                Profiles.map((profile) => 
+                profiles.map((profile) => 
                     <div
                         onClick={() => navigate(`${profile.tutorid}`)}
                         key={profile.tutorid}

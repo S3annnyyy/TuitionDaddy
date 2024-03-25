@@ -13,7 +13,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchChange }) => {
     }
 
     return (
-        <div className="m-4">
+        <div className="m-4 justify-self-center">
             <form className="max-w-md mx-auto">   
                 <div className="relative">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">

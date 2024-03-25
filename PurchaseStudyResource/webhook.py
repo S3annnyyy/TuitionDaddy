@@ -13,6 +13,8 @@ bot.
 
 import os
 import logging
+import pika
+import json
 from dotenv import load_dotenv
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
@@ -48,7 +50,23 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
-    await update.message.reply_text(update.message.text)
+    message_text = update.message.text
+    chat_id = update.effective_chat.id
+
+    # Publish the message to the "Notification" queue
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    channel = connection.channel()
+    channel.basic_publish(
+        exchange='direct_logs',
+        routing_key='*.notification',
+        body=json.dumps({
+            'chat_id': chat_id,
+            'telegram_message': message_text
+        })
+    )
+    connection.close()
+
+    await update.message.reply_text("Message sent to the notification queue.")
 
 
 def main() -> None:

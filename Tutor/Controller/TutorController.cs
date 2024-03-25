@@ -5,6 +5,9 @@ using Npgsql;
 using System.Data;
 using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.EntityFrameworkCore;
+using DotNetEnv;
+
+
 
 
 namespace Tutor.Controllers
@@ -23,10 +26,12 @@ namespace Tutor.Controllers
         [HttpPost()]
         public async Task<IActionResult> CreateTutorProfile(TutorProfile profile)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 INSERT into tutorProfile(tutorid, description, experience, subjectLevel, photoLink, name)
                 values(@tutorid, @description, @experience, @subjectLevel, @photoLink, @name)";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -56,16 +61,18 @@ namespace Tutor.Controllers
         [HttpPut()]
         public async Task<IActionResult> UpdateTutorProfile(TutorProfile profile)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 UPDATE tutorProfile
                 SET
-                    name = @name
+                    name = @name,
                     description = @description,
                     experience = @experience,
                     subjectLevel = @subjectLevel,
                     photoLink = @photoLink
                 WHERE tutorid = @tutorid";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -95,11 +102,13 @@ namespace Tutor.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTutorProfiles()
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorProfile";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -119,12 +128,14 @@ namespace Tutor.Controllers
         [HttpGet("{TutorId}")]
         public async Task<IActionResult> GetTutorProfileById(int TutorId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorProfile
                 WHERE tutorid = @tutorid";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -145,6 +156,9 @@ namespace Tutor.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> GetTutorProfilesBySearch(string search)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorProfile
@@ -155,7 +169,6 @@ namespace Tutor.Controllers
                     FROM unnest(subjectlevel) as subject
                     WHERE subject ILIKE '%' || @search || '%')";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -176,10 +189,12 @@ namespace Tutor.Controllers
         [HttpPost("price")]
         public async Task<IActionResult> CreateTutorPrices(TutorPrice price)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 INSERT into tutorPrice(tutorid, subjectLevel, price)
                 values(@tutorid, @subjectLevel, @price)";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -199,12 +214,14 @@ namespace Tutor.Controllers
         [HttpGet("price/{TutorId}")]
         public async Task<IActionResult> GetTutorPricesById(int TutorId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT *
                 FROM tutorPrice
                 WHERE tutorid = @tutorid";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -225,12 +242,14 @@ namespace Tutor.Controllers
         [HttpPut("price")]
         public async Task<IActionResult> UpdateTutorPrices(TutorPrice price)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 UPDATE tutorPrice
                 SET price = @price
                 WHERE tutorid = @tutorid
                 AND subjectLevel = @subjectLevel";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -258,12 +277,14 @@ namespace Tutor.Controllers
         [HttpDelete("price")]
         public async Task<IActionResult> DeleteTutorPrices(int TutorId, string SubjectLevel)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 DELETE 
                 FROM tutorPrice
                 WHERE tutorid = @tutorid
                 AND subjectLevel = @subjectLevel";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -289,13 +310,15 @@ namespace Tutor.Controllers
         [HttpGet("tutor/slots/{TutorId}")]
         public async Task<IActionResult> GetAllTutorSlots(int TutorId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorSlot
                 WHERE tutorId = @tutorId
                 ORDER BY startAt";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -316,14 +339,16 @@ namespace Tutor.Controllers
         [HttpGet("slots/available/{TutorId}")]
         public async Task<IActionResult> GetAllAvailableTutorSlots(int TutorId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorSlot
                 WHERE tutorId = @tutorId
-                AND students IS NULL
+                AND student IS NULL
                 ORDER BY startAt";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -344,12 +369,14 @@ namespace Tutor.Controllers
         [HttpGet("slots/{SlotId}")]
         public async Task<IActionResult> GetTutorSlotBySlotId(Guid SlotId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 SELECT * 
                 FROM tutorSlot
                 WHERE slotId = @slotId";
             DataTable table = new();
-            string connectionString = _configuration.GetConnectionString("Default");
             NpgsqlDataReader myReader;
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
@@ -370,11 +397,13 @@ namespace Tutor.Controllers
         [HttpPost("slots")]
         public async Task<IActionResult> CreateTutorSlot(TutorSlot slot)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
-                INSERT into tutorSlot(slotid, tutorid, students, startAt, duration)
-                VALUES (@slotid, @tutorid, @students, @startAt, @duration)";
+                INSERT into tutorSlot(slotid, tutorid, student, startAt, duration)
+                VALUES (@slotid, @tutorid, @student, @startAt, @duration)";
 
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -382,7 +411,7 @@ namespace Tutor.Controllers
                 NpgsqlCommand command = new NpgsqlCommand(query, conn);
                 command.Parameters.AddWithValue("@slotid", slot.SlotId);
                 command.Parameters.AddWithValue("@tutorid", slot.TutorId);
-                command.Parameters.AddWithValue("@students", slot.Students);
+                command.Parameters.AddWithValue("@student", slot.Student);
                 command.Parameters.AddWithValue("@startat", slot.StartAt);
                 command.Parameters.AddWithValue("@duration", slot.Duration);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -396,15 +425,17 @@ namespace Tutor.Controllers
         [HttpPut("slots/{SlotId}")]
         public async Task<IActionResult> UpdateTutorSlot(TutorSlot slot)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 UPDATE tutorSlot
                 SET
                     slotid = @slotid,
-                    students = @students,
+                    student = @student,
                     startAt = @startAt,
                     duration = @duration
                 WHERE tutorid = @tutorid";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
@@ -412,7 +443,7 @@ namespace Tutor.Controllers
                 NpgsqlCommand command = new NpgsqlCommand(query, conn);
                 command.Parameters.AddWithValue("@slotid", slot.SlotId);
                 command.Parameters.AddWithValue("@tutorid", slot.TutorId);
-                command.Parameters.AddWithValue("@students", slot.Students);
+                command.Parameters.AddWithValue("@student", slot.Student);
                 command.Parameters.AddWithValue("@startat", slot.StartAt);
                 command.Parameters.AddWithValue("@duration", slot.Duration);
                 int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -426,11 +457,13 @@ namespace Tutor.Controllers
         [HttpDelete("slots/{SlotId}")]
         public async Task<IActionResult> DeleteTutorSlot(Guid SlotId)
         {
+            DotNetEnv.Env.Load();
+            var supabasePassword = Environment.GetEnvironmentVariable("SUPABASE_PASSWORD");
+            string connectionString = $"User Id=postgres.bqqagzkdpxggygcmauvr;Password={supabasePassword};Server=aws-0-ap-southeast-1.pooler.supabase.com;Port=5432;Database=postgres;";
             string query = @"
                 DELETE 
                 FROM tutorSlot
                 WHERE slotid = @slotid";
-            string connectionString = _configuration.GetConnectionString("Default");
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
             try
