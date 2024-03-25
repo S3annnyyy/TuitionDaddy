@@ -31,6 +31,7 @@ export const router = createBrowserRouter([
             { path: "tutors/:tutorid", element: <Tutor /> },
             { path: "tutors/payment/:slotid", element: <TutorPayment />},
             { path: "class", element: <Class /> },
+            { path: "quiz/generate-quiz", element: <Quiz /> },
             { path: "quiz", element: <Quiz /> },
             { path: "gptcher", element: <GPTCher /> },
             { path: "chat", element: <Chat /> }

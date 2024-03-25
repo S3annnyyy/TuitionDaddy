@@ -12,15 +12,19 @@ const bucketName = process.env.AWS_BUCKET_NAME;
 const textractClient = new TextractClient({ region: process.env.AWS_DEFAULT_REGION });
 const client = new S3Client({ region: process.env.AWS_DEFAULT_REGION });
 
+// MAKE A NEW FUNCTION TO SUBMIT QUIZ WORKINGS TO THE DATABASE
+
 export async function generateQuizHandler(req, res) {
     try {
+
         const files = req.files;
         const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
         const formFields = req.body;
 
-        const numQnsValue = formFields.num_qns;
-        const questionTypeValue = formFields.question_type;
-        const quizTitle = formFields.title;
+        const numQnsValue = formFields.numQns;
+        const questionTypeValue = formFields.questionType;
+        const quizTitle = formFields.quizTitle;
+        const userId = formFields.userId;
 
         if (!file) { 
             return res.status(400).send('No files uploaded.'); 
@@ -68,20 +72,30 @@ export async function generateQuizHandler(req, res) {
                 const jsonString = JSON.stringify(jsonQuiz);
                 const quizObject = JSON.parse(jsonString);
 
-                await uploadQuizToDatabase(quizObject, quizTitle);
+                const quizTopics = quizObject.topics;
+                const quizQuestions = quizObject.questions;
+
+                await uploadQuizToDatabase(quizObject, quizTitle, userId);
+
+                console.log(quizTopics);
+                console.log(quizQuestions);
 
                 res.json({
-                    error: false,
+                    success: true,
                     message: "PDF processed and quiz generated successfully. Quiz uploaded into database as well.",
-                    generatedQuiz: jsonString,
-                    dbData: dbResponse,
+                    data: {
+                        quizTopics: quizTopics,
+                        quizQuestions: quizQuestions,
+                        dbData: dbResponse,
+                    }
                 });
             } catch (textractError) {
-                console.error('Error processing PDF and generating quiz:', textractError);
+                console.log('Error processing PDF and generating quiz:', textractError);
                 if (!res.headersSent) {
                     res.status(500).send({
-                        error: true,
+                        success: false,
                         message: 'Error processing PDF and generating quiz.',
+                        errorDetails: textractError,
                     });
                 }
             }
@@ -89,7 +103,7 @@ export async function generateQuizHandler(req, res) {
         }
 
         res.json({
-            error: false,
+            success: true,
             message: `${filetype} uploaded successfully and saved to database.`,
             url: fileLocation, 
             formFields: {
@@ -103,8 +117,9 @@ export async function generateQuizHandler(req, res) {
         console.error('Error uploading file or in database operation:', error); 
         if (!res.headersSent) {
             res.status(500).send({ 
-                error: true, 
+                success: false, 
                 message: 'Error uploading file.', 
+                errorDetails: error,
             }); 
         }
     }
@@ -112,30 +127,33 @@ export async function generateQuizHandler(req, res) {
 
 export async function retrieveQuizzesHandler(req, res) {
     try {
-        const userId = req.user.id;
+        const userId = req.query.userId;
 
-        const retrieveQuery = 'SELECT * FROM quizzes where userID = $1';
+        console.log(userId);
+
+        const retrieveQuery = 'SELECT * FROM quizzes where user_id = $1';
         const userQuizValues = [userId];
+
         const result = await db.query(retrieveQuery, userQuizValues);
 
         if (result) {
-            if (result.rows.length > 0) {
-                res.json({
-                    quizAvailable: true,
-                    quizzes: result.rows,
-                });
-            } else {
-                res.json({
-                    quizAvailable: false,
-                    message: 'No quizzes found for the user',
-                })
-            }
+            res.json({
+                success: true,
+                quizAvailable: true,
+                quizzes: result,
+            });
+        } else {
+            res.json({
+                success: true,
+                quizAvailable: false,
+                message: 'No quizzes found for the user',
+            })
         }
     } catch (error) {
-        console.error('Error fetching quizzes:', error);
         res.status(500).send({
-            error: true,
+            success: false,
             message: 'Error fetching quizzes',
+            errorDetails: error,
         })
     }
 }
@@ -148,26 +166,33 @@ export async function openQuiz(req, res) {
         const selectQuiz = 'SELECT * FROM quizzes where id = $1';
         const quizResult = await db.query(selectQuiz, [quizId]);
 
-        if (quizResult.rows.length > 0) {
-            res.json(result.rows[0]);
+        if (quizResult) {
+            res.json(quizResult);
         } else {
-            res.status(404).send({ message: 'Quiz not found' });
+            res.status(404).json({
+                success: false,
+                message: 'Quiz not found'
+            });
         }
     } catch (error) {
-        console.error('Error retrieving a quiz from database', error);
-        res.status(500).send({ message: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            message: 'An internal server error occurred while retrieving the quiz.',
+            errorDetails: error.message,
+        });
     }
 }
 
-async function uploadQuizToDatabase(quizObject, quizTitle) {
+export async function uploadQuizToDatabase(quizObject, quizTitle, userId) {
     try {
         const topics = quizObject.topics;
         const questions = quizObject.questions;
 
         const quizId = short.generate();
 
-        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions) VALUES ($1, $2, $3, $4) RETURNING *;';
-        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions)];
+        //and then this quizzes table will also have userID and the score but SCORE IS EMPTY INITIALLY FOR THIS FUNCTION
+        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;';
+        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions), userId];
 
         const dbResponseQuiz = await db.query(quizQuery, quizValues);
 
@@ -175,5 +200,67 @@ async function uploadQuizToDatabase(quizObject, quizTitle) {
     } catch (dbError) {
         console.error('Error uploading quiz to database:', dbError);
         throw dbError;
+    }
+}
+
+export async function submitQuizHandler(req, res) {
+    //logic on the frontend side SEND JSON to this backend,,,
+    //this backend then compares the JSON REQ with the correct answers
+    //THEN the backend calculates and returns the score to the frontend
+    //THEN the frontend displays the score to the user
+
+    try {
+        // Extract data from request body
+        const userAnswers = req.body.answers; //needa find out how the format from frontend to backend is for this
+        const quizId = req.body.quizId;
+
+        // Initialize variables to calculate score
+        let quizMarks = 0;
+        let totalQuestions = 0;
+
+        // Retrieve the specified quiz from the database
+        const selectQuiz = 'SELECT * FROM quizzes WHERE id = $1';
+        const quizResult = await db.query(selectQuiz, [quizId]);
+
+        if (quizResult.rows.length > 0) {
+            const quiz = quizResult.rows[0];
+            const questions = quiz.questions; //ensure that it is an array
+
+            // Compare each qn answers
+            for (const question of questions) {
+                const correctAnswer = question.correctAnswer;
+                const userAnswer = userAnswers[questions.indexOf(question)];
+                if (correctAnswer === userAnswer) {
+                    quizMarks++;
+                }
+                totalQuestions++;
+            };            
+        };
+
+        // Calculate quiz score
+        const quizScore = totalQuestions > 0 ? (quizMarks / totalQuestions) * 100 : 0;
+
+        // Insert the quiz score into the database
+        const submitQuery = 'INSERT INTO quizzes(quizScore) VALUES ($1) RETURNING *;';
+        const submitValues = [quizScore];
+        const dbResponseSubmit = await db.query(submitQuery, submitValues);
+
+        console.log(dbResponseSubmit);
+
+        res.json({
+            success: true,
+            message: 'Quiz submitted successfully.',
+            quizScore: quizScore,
+            totalQuestions: totalQuestions,
+            scorePercentage: quizScore, // Assuming scorePercentage is the same as quizScore
+        });
+    } catch (error) {
+        // Log and respond to the error
+        console.error('Error submitting quiz:', error);
+        res.status(500).send({
+            success: false, 
+            message: 'Error submitting quiz',
+            errorDetails: error,
+        });
     }
 }
