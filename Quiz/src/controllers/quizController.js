@@ -16,15 +16,15 @@ const client = new S3Client({ region: process.env.AWS_DEFAULT_REGION });
 
 export async function generateQuizHandler(req, res) {
     try {
-        const userId = req.user.sub;
 
         const files = req.files;
         const file = files['pdf_pptx'] ? files['pdf_pptx'][0] : null;
         const formFields = req.body;
 
-        const numQnsValue = formFields.num_qns;
-        const questionTypeValue = formFields.question_type;
-        const quizTitle = formFields.title;
+        const numQnsValue = formFields.numQns;
+        const questionTypeValue = formFields.questionType;
+        const quizTitle = formFields.quizTitle;
+        const userId = formFields.userId;
 
         if (!file) { 
             return res.status(400).send('No files uploaded.'); 
@@ -77,6 +77,9 @@ export async function generateQuizHandler(req, res) {
 
                 await uploadQuizToDatabase(quizObject, quizTitle, userId);
 
+                console.log(quizTopics);
+                console.log(quizQuestions);
+
                 res.json({
                     success: true,
                     message: "PDF processed and quiz generated successfully. Quiz uploaded into database as well.",
@@ -87,6 +90,7 @@ export async function generateQuizHandler(req, res) {
                     }
                 });
             } catch (textractError) {
+                console.log('Error processing PDF and generating quiz:', textractError);
                 if (!res.headersSent) {
                     res.status(500).send({
                         success: false,
@@ -123,7 +127,9 @@ export async function generateQuizHandler(req, res) {
 
 export async function retrieveQuizzesHandler(req, res) {
     try {
-        const userId = req.user.sub;
+        const userId = req.query.userId;
+
+        console.log(userId);
 
         const retrieveQuery = 'SELECT * FROM quizzes where user_id = $1';
         const userQuizValues = [userId];
@@ -131,19 +137,17 @@ export async function retrieveQuizzesHandler(req, res) {
         const result = await db.query(retrieveQuery, userQuizValues);
 
         if (result) {
-            if (result.rows.length > 0) {
-                res.json({
-                    success: true,
-                    quizAvailable: true,
-                    quizzes: result.rows,
-                });
-            } else {
-                res.json({
-                    success: true,
-                    quizAvailable: false,
-                    message: 'No quizzes found for the user',
-                })
-            }
+            res.json({
+                success: true,
+                quizAvailable: true,
+                quizzes: result,
+            });
+        } else {
+            res.json({
+                success: true,
+                quizAvailable: false,
+                message: 'No quizzes found for the user',
+            })
         }
     } catch (error) {
         res.status(500).send({
@@ -162,8 +166,8 @@ export async function openQuiz(req, res) {
         const selectQuiz = 'SELECT * FROM quizzes where id = $1';
         const quizResult = await db.query(selectQuiz, [quizId]);
 
-        if (quizResult.rows.length > 0) {
-            res.json(result.rows[0]);
+        if (quizResult) {
+            res.json(quizResult);
         } else {
             res.status(404).json({
                 success: false,
