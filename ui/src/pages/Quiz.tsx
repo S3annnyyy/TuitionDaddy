@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
-import { useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import QuizDisplay from "../components/quiz/QuizDisplay.tsx";
+import QuizSidebar from "../components/quiz/QuizSidebar.tsx";
+// import Question from "../components/quiz/Question.tsx";
+// import { useNavigate } from "react-router-dom";
 
 const Quiz = () => {
     const [quizTitle, setQuizTitle] = useState("");
@@ -8,11 +11,12 @@ const Quiz = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [numQns, setNumQns] = useState(0);
     const [questionType, setQuestionType] = useState("");
-    const navigate = useNavigate();
+    const [selectedQuizIndex, setSelectedQuizIndex] = useState<number>(0);
+    // const navigate = useNavigate();
 
     const userId = sessionStorage.getItem('userId');
     if (!userId) {
-        throw new Error('User not identified');
+        throw new Error('User not identified. Please login to view quizzes.');
     }
 
     useEffect(() => {
@@ -21,11 +25,16 @@ const Quiz = () => {
 
     const fetchQuizzes = async () => {
         try {
-            const urlFetch = `http://localhost:2000/quiz/`;
+            const userId = sessionStorage.getItem('userId');
+            if (!userId) {
+                throw new Error('User not identified. Please login to view quizzes.');
+            }
+
+            const urlFetch = `http://localhost:2000/quiz/?userId=${userId}`;
 
             const req = await fetch(urlFetch);
             const data = await req.json();
-            if (data.success) {
+            if (data.success && data.quizAvailable) {
                 setQuizzes(data.quizzes);
             } else {
                 setErrorMessage(data.message || 'Failed to fetch quizzes')
@@ -53,7 +62,7 @@ const Quiz = () => {
             if (userId) {
                 formData.append("userId", userId);
             } else {
-                setErrorMessage("User not identified");
+                setErrorMessage("User not identified. Please login to generate quizzes.");
                 return;
             }
 
@@ -67,26 +76,50 @@ const Quiz = () => {
             const res = await req.json();
             if (res.success) {
                 console.log("Quiz created successfully!");
+                setErrorMessage(""); // Clear any existing error messages
+                alert("Quiz created and uploaded successfully!"); // Alert the user
+                fetchQuizzes(); // Fetch the updated list of quizzes
             }
         } catch (error) {
             console.log(error);
-            setErrorMessage(`Error occurred: ${error}`);
+            setErrorMessage(`Failed to create quiz: ${error}`);
         }
     }
 
+    // this should be OnChange for a button thats under any of the 1 quizzes
+    // async function submitQuiz (quizId, userAnswers) {
+    //     try {
+    //         const response = await fetch('http://localhost:2000/submit-quiz', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({ quizId, answers: userAnswers }),
+    //         });
+    
+    //         const data = await response.json();
+    //         if (data.success) {
+    //             alert(`Quiz submitted! Your score: ${data.quizScore}/${data.totalQuestions} (${data.scorePercentage}%)`);
+    //         } else {
+    //             setErrorMessage(data.message || 'Failed to submit quiz');
+    //         }
+    //     } catch (error) {
+    //         setErrorMessage(`Error submitting quiz: ${error}`);
+    //     }
+    // }
+    
+
     return (
         <div className='quiz-container'>
-            <aside className='sidebar'>
-                {quizzes.map((quiz, index) => (
-                    <div
-                        key={index}
-                        className='sidebar-item'
-                        onClick={() => navigate(`/quiz/:id`)}
-                    >
-                        {quizTitle}
-                    </div>
-                ))}
-            </aside>
+            {/* needa fetch quizzes from backend */}
+
+            <QuizSidebar
+                quizzes={quizzes}
+                onSelectQuiz={setSelectedQuizIndex}
+            />
+            {selectedQuizIndex !== null && (
+                <QuizDisplay quiz={quizzes[selectedQuizIndex]} />
+            )}
             
             <main>
                 <section>
