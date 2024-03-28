@@ -67,7 +67,14 @@ export async function generateQuizHandler(req, res) {
                 const generatedQuiz = await generateQuizLib.generateQuiz(extractedText, numQnsValue, questionTypeValue);
                 const cleanedQuiz = generatedQuiz.replace(/\n/g, ' ');
 
-                const jsonQuiz = await quizCleaner.cleanQuiz(cleanedQuiz);
+                let jsonQuiz;
+
+                if (questionTypeValue === 'multiple choice') {
+                    jsonQuiz = await quizCleaner.cleanQuiz(cleanedQuiz);
+                } else {
+                    jsonQuiz = await quizCleaner.cleanQuizShortAnswer(cleanedQuiz);
+                }
+                
 
                 const jsonString = JSON.stringify(jsonQuiz);
                 const quizObject = JSON.parse(jsonString);
@@ -75,7 +82,7 @@ export async function generateQuizHandler(req, res) {
                 const quizTopics = quizObject.topics;
                 const quizQuestions = quizObject.questions;
 
-                await uploadQuizToDatabase(quizObject, quizTitle, userId);
+                await uploadQuizToDatabase(quizObject, quizTitle, userId, questionTypeValue);
 
                 console.log(quizTopics);
                 console.log(quizQuestions);
@@ -183,7 +190,7 @@ export async function openQuiz(req, res) {
     }
 }
 
-export async function uploadQuizToDatabase(quizObject, quizTitle, userId) {
+export async function uploadQuizToDatabase(quizObject, quizTitle, userId, questionTypeValue) {
     try {
         const topics = quizObject.topics;
         const questions = quizObject.questions;
@@ -191,8 +198,8 @@ export async function uploadQuizToDatabase(quizObject, quizTitle, userId) {
         const quizId = short.generate();
 
         //and then this quizzes table will also have userID and the score but SCORE IS EMPTY INITIALLY FOR THIS FUNCTION
-        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;';
-        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions), userId];
+        const quizQuery = 'INSERT INTO quizzes(id, title, topics, questions, user_id, quiz_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;';
+        const quizValues = [quizId, quizTitle, JSON.stringify(topics), JSON.stringify(questions), userId, questionTypeValue];
 
         const dbResponseQuiz = await db.query(quizQuery, quizValues);
 
@@ -241,7 +248,7 @@ export async function submitQuizHandler(req, res) {
         const quizScore = totalQuestions > 0 ? (quizMarks / totalQuestions) * 100 : 0;
 
         // Insert the quiz score into the database
-        const submitQuery = 'INSERT INTO quizzes(quizScore) VALUES ($1) RETURNING *;';
+        const submitQuery = 'INSERT INTO quizzes(quiz_score) VALUES ($1) RETURNING *;';
         const submitValues = [quizScore];
         const dbResponseSubmit = await db.query(submitQuery, submitValues);
 

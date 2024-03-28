@@ -11,7 +11,7 @@ async function cleanQuiz(text) {
         messages: [
             {
                 role: "system",
-                content: "You are a helpful assistant designed to output structured JSON data. Make use of every single line in the input text. Each question is following by options/possible answers. Provide a list of these options as an array of strings. The JSON schema is: { topics: [], questions: [{ question: '', options: [], correctAnswer: '', explanationOfCorrectAnswer: '' }] }.",
+                content: "You are a helpful assistant designed to output structured JSON data. Make use of every single line in the input text. Each question is followed by options/possible answers. Provide a list of these options as an array of strings. The JSON schema is: { topics: [], questions: [{ question: '', options: [], correctAnswer: '', explanationOfCorrectAnswer: '' }] }.",
             },
             { role: "user", content: text },
         ]
@@ -26,7 +26,28 @@ async function cleanQuiz(text) {
     }
 }
 
-export default { cleanQuiz };
+async function cleanQuizShortAnswer(text) {
+    const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+            {
+                role: "system",
+                content: "You are a helpful assistant designed to output structured JSON data. Make use of every single line in the input text. Each question is followed by a suggested answer. The JSON schema is: { topics: [], questions: [{ question: '', correctAnswer: '', explanationOfCorrectAnswer: '' }] }.",
+            },
+            { role: "user", content: text },
+        ]
+    });
+
+    try {
+        const jsonResponse = JSON.parse(completion.choices[0].message.content);
+        return jsonResponse;
+    } catch (error) {
+        console.error("Failed to parse response as JSON:", error);
+        throw error;
+    }
+}
+
+export default { cleanQuiz, cleanQuizShortAnswer };
 
 // const zodSchema = z.object({
 //     topics: z.array(z.string()).describe("A list of topics"),
