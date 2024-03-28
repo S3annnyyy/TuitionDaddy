@@ -24,7 +24,7 @@ interface QuizDisplayProps {
 }
 
 const QuizDisplay: React.FC<QuizDisplayProps> = ({ quiz }) => (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", margin:"auto", width:"800px" }}>
         <h2>{quiz.title}</h2>
         <h4>Topics: {quiz.topics.join(", ")}</h4>
         {quiz.questions.map((question, index) => (
